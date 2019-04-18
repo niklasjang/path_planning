@@ -1,3 +1,3 @@
 time stamp
-int32 data
+int32 target_x
 

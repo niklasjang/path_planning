@@ -23,7 +23,7 @@ generate_messages(DEPENDENCIES std_msgs)
 ## 캐킨 패키지 옵션으로 라이브러리, 캐킨 빌드 의존성, 시스템 의존 패키지를 기술한다.
 catkin_package(
 LIBRARIES niklasjang_path_planning
-CATKIN_DEPENDS std_msgs roscpp
+CATKIN_DEPENDS std_msgs roscpp geometry
 )
 
 ## 인클루드 디렉터리를 설정한다.
