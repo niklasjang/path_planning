@@ -15,9 +15,10 @@ int main(int argc, char **argv)// 노드 메인 함수
 	// 루프 주기를 설정한다. "10" 이라는 것은 10Hz를 말하는 것으로 0.1초 간격으로 반복된다
 	ros::Rate loop_rate(10);
 	
-	int count = 0;
-
-	while (ros::ok()){//If this node is not kiiled, return true
+	
+	int count = 10;
+	//while (ros::ok()){//If this node is not kiiled, return true
+	while (count>0){//If this node is not kiiled, return true
 		//niklasjang_path_planning::MsgTutorial msg;
 		//msg.target_x = 10;
 		geometry_msgs::Twist twist;
@@ -30,8 +31,9 @@ int main(int argc, char **argv)// 노드 메인 함수
 
 		path_pub.publish(twist); // 메시지를 발행한다 
 
-		loop_rate.sleep(); // 위에서 정한 루프 주기에 따라 슬립에 들어간다. If  time loop is not filled with this loop, wait ultil 1-Hz is matched.
-		++count; // count 변수 1씩 증가
+		loop_rate.sleep(); // 위에서 정한 루프 주기에 따라 슬립에 들어간다. If  time loop is not filled with this loop_rate
+		count--;
 	}
+	
 	return 0;
 }

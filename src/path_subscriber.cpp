@@ -19,6 +19,15 @@ int main(int argc, char **argv)// 노드 메인 함수
 	ros::Subscriber ros_tutorial_sub = nh.subscribe<geometry_msgs::Twist>("/path/cmd_vel", 1000, msgCallback);
 	// 콜백함수 호출을 위한 함수로써, 메시지가 수신되기를 대기,
 	// 수신되었을 경우 콜백함수를 실행한다
+	//ros::spin() asks ROS to wait for and execute callbacksuntil the node shuts down.
+	/*
+	https://cse.sc.edu/~jokane/agitr/agitr-letter-pubsub.pdf
+	
+	The question of whether to useros::spinOnce()orros::spin()comes down to this: 
+	Does your program have any repetitive work to do, other than responding to callbacks? 
+	If theanswer is “No,” then useros::spin(). If the answer is “Yes,” then a reasonable option 
+	is towrite a loop that does that other work and callsros::spinOnce()periodically to processcallbacks. 
+	*/
 	ros::spin();
 	return 0;
 }
