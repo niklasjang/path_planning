@@ -1,3 +1,3 @@
-time stamp
-int32 target_x
+time begin
+time current
 

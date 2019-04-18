@@ -18,7 +18,9 @@ add_message_files(FILES MsgTutorial.msg)
 
 ## 의존하는 메시지를 설정하는 옵션이다.
 ## std_msgs가 설치되어 있지 않다면 빌드 도중에 에러가 난다.
-generate_messages(DEPENDENCIES std_msgs)
+generate_messages(DEPENDENCIES 
+roscpp
+)
 
 ## 캐킨 패키지 옵션으로 라이브러리, 캐킨 빌드 의존성, 시스템 의존 패키지를 기술한다.
 catkin_package(

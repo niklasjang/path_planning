@@ -16,13 +16,13 @@ int main(int argc, char **argv)// 노드 메인 함수
 	// 서브스크라이버 선언, ros_tutorials_topic 패키지의 MsgTutorial 메시지 파일을 이용한
 	// 서브스크라이버 ros_tutorial_sub 를 작성한다. 토픽명은 "ros_tutorial_msg" 이며,
 	// 서브스크라이버 큐(queue) 사이즈를 100개로 설정한다는 것이다
-	ros::Subscriber ros_tutorial_sub = nh.subscribe<geometry_msgs::Twist>("/path/cmd_vel", 1000, msgCallback);
+	ros::Subscriber ros_tutorial_sub = nh.subscribe<geometry_msgs::Twist>("/cmd_vel", 1000, msgCallback);
 	// 콜백함수 호출을 위한 함수로써, 메시지가 수신되기를 대기,
 	// 수신되었을 경우 콜백함수를 실행한다
 	//ros::spin() asks ROS to wait for and execute callbacksuntil the node shuts down.
 	/*
 	https://cse.sc.edu/~jokane/agitr/agitr-letter-pubsub.pdf
-	
+
 	The question of whether to useros::spinOnce()orros::spin()comes down to this: 
 	Does your program have any repetitive work to do, other than responding to callbacks? 
 	If theanswer is “No,” then useros::spin(). If the answer is “Yes,” then a reasonable option 
