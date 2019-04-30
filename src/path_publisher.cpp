@@ -19,14 +19,29 @@ int main(int argc, char **argv)// 노드 메인 함수
 	// 루프 주기를 설정한다. "10" 이라는 것은 10Hz를 말하는 것으로 0.1초 간격으로 반복된다
 	ros::Rate loop_rate(10);
 	
-	niklasjang_path_planning::MsgTutorial turn_span;
+	geometry_msgs::Twist twist;
+	twist.linear.x = 0.3;
+	twist.angular.z = 0.0;
 
-	
-	double t_begin = ros::Time::now().toSec();
-	double t_current = ros::Time::now().toSec();
+	ros::Time beginTime = ros::Time::now();
+	double begin = beginTime.toSec();
+	ros::Duration secondsIWantToSendMessagesFor = ros::Duration(3); 
+	double end = secondsIWantToSendMessagesFor.toSec() + begin;
+	double current = 0.0;
+	while(current = ros::Time::now().toSec() < end )
+	{
+		current = ros::Time::now().toSec();
+		ROS_INFO("current : %f \n", current);
+		ROS_INFO("end : %f \n", end);
+		path_pub.publish(twist);
+
+		// Time between messages, so you don't blast out an thousands of 
+		// messages in your 3 secondperiod
+		ros::Duration(0.1).sleep();
+	}
+
+	/*
 	while (ros::ok()){//If this node is not kiiled, return true
-		//niklasjang_path_planning::MsgTutorial msg;
-		//msg.target_x = 10;
 		geometry_msgs::Twist twist;
 		twist.linear.x = 0.3;
 		twist.angular.z = 0.0;
@@ -39,18 +54,23 @@ int main(int argc, char **argv)// 노드 메인 함수
 			twist.linear.x = 0.3;
 			twist.angular.z = 3.0;
 		}
-
-
-
-
 		ROS_INFO("publishing geometry/Twist x: %f, %f", twist.linear.x, twist.angular.z); // stamp.sec 메시지를 표시한다
-
 		//ROS_INFO("publishing geometry/Twist x: %d, %d", msg.target_x, msg.target_y); // stamp.sec 메시지를 표시한다
-
-		path_pub.publish(twist); // 메시지를 발행한다 
-
+		path_pub.publish(twist); // 메시지를 발행한다 	
 		loop_rate.sleep(); // 위에서 정한 루프 주기에 따라 슬립에 들어간다. If  time loop is not filled with this loop_rate
+		
 	}
+	*/
 	
 	return 0;
 }
+
+
+// TODO : Identificate robot id 
+// TODO : Load 6 robots in a world
+// TODO : Make reset robot's position with command
+// TODO : Pushlish cmd_vel topic for a while
+// TODO : Determine current robot's position
+// TODO : Make turn function
+// TODO : Make go straight function
+// TODO : According to plan call function
