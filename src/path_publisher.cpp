@@ -1,15 +1,27 @@
+#include <iostream>
 #include "ros/ros.h"
 #include <time.h>
 #include <stdlib.h> 
 // ROS 기본 헤더파일
 #include <geometry_msgs/Twist.h>
+#include "std_msgs/String.h"
 #include "niklasjang_path_planning/MsgTutorial.h"
+//===================================
+//Spliter header
+
+#include <string>
+#include <vector>
+
+//=========type check
+#include <typeinfo>
+using namespace std;
 
 class MY_ROBOT{
 private :
 	geometry_msgs::Twist twist;
 	ros::NodeHandle nh; // ROS 시스템과 통신을 위한 노드 핸들 선언
 	ros::Publisher path_pub;// = nh.advertise<niklasjang_path_planning::MsgTutorial>("/path1/cmd_vel", 1000);
+	ros::Subscriber pddl_sub;
 public:
 	void Initialize(void);
 	void SetMsg(double _x, double _z){
@@ -42,9 +54,56 @@ public:
 	}
 };
 
+void split_inst(vector<std::string> &arr, std::string& str, const std::string& delim) {
+	size_t pos = 0;		
+	std::string token;
+	while ((pos = str.find(delim)) != std::string::npos) { //delim ���ڸ� ã������
+		token = str.substr(0, pos);  //ó������ pos ���̸�ŭ�� ���ڸ� token����
+		//cout << token << endl;
+		str.erase(0, pos + delim.length());
+		arr.push_back(token);
+	}
+	//cout << str<< endl;
+	arr.push_back(str);
+}
+
+void split_next(vector <pair<std::string, pair<std::string, std::string> > > &arr, std::string& str, const std::string& delim) {
+	size_t pos = 0;
+	std::string token;
+	int index = 0;
+	std::string obj;
+	std::string x_pos;
+	std::string y_pos;
+	while ((pos = str.find(delim)) != std::string::npos) { //delim ���ڸ� ã������
+		token = str.substr(0, pos);  //ó������ pos ���̸�ŭ�� ���ڸ� token����
+		//cout << token <<","<< index << endl;
+		if (index == 0) { obj = token; }
+		if (index == 1) { x_pos = token;}
+		if (index == 2) {
+			y_pos = token;
+			arr.push_back(make_pair(obj, make_pair(x_pos, y_pos)));
+		}
+		str.erase(0, pos + delim.length());
+		index++;
+	}
+	
+}
+
+void msgCallback(const std_msgs::StringConstPtr& pddl_result)
+{
+	//ROS_INFO("pddl_result is of type: %s", typeid(pddl_result).name()); 
+	//ROS_INFO("pddl_result-> is of type: %s", typeid(pddl_result->data.c_str()).name()); 
+	ROS_INFO(pddl_result->data.c_str());
+	std::string str = pddl_result->data;
+	
+	ROS_INFO(str.c_str());
+
+}
+
 void MY_ROBOT::Initialize(void){
 	path_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
 	// 루프 주기를 설정한다. "10" 이라는 것은 10Hz를 말하는 것으로 0.1초 간격으로 반복된다
+	pddl_sub = nh.subscribe("/result", 1000, msgCallback);
 	ros::Rate loop_rate(10);
 }
 
@@ -73,16 +132,19 @@ void MY_ROBOT::RollRoll(double spen){
 int main(int argc, char **argv)// 노드 메인 함수
 {	
 	ros::init(argc, argv, "path_publisher"); // 노드명 초기화
+	
 	MY_ROBOT robot;
 	robot.Initialize();
+	/*
 	ros::Duration(2.0).sleep();
 	robot.GoStraight();
 	ros::Duration(2.0).sleep();
 	robot.TurnLeft();
 	ros::Duration(2.0).sleep();
 	robot.TurnRight();
+	*/
 	
-	return 0;
+	ros::spin();
 }
 
 
