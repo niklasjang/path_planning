@@ -165,11 +165,19 @@ void MY_ROBOT::split(void){
 
 void MY_ROBOT::control(void){
 	//ROS_INFO("CONTROL");
+
 	for (int i = 0; i < next.size(); i++) {
 		ROS_INFO(next[i].first.c_str());
 		ROS_INFO(next[i].second.first.c_str());
 		ROS_INFO(next[i].second.second.c_str());
+		
 	}
+	switch(next[i].first){
+		case t1:
+			path_pub = nh.advertise<geometry_msgs::Twist>("/robot1/cmd_vel", 1000);
+	}
+
+
 }
 int main(int argc, char **argv)// 노드 메인 함수
 {	

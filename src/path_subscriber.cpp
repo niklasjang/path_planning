@@ -7,7 +7,7 @@
 void msgCallback(const geometry_msgs::Twist::ConstPtr& path_msg)
 {
 	ROS_INFO("subscribing geometry/Twist x: %f, %f", path_msg->linear.x, path_msg->angular.z); // stamp.sec 메시지를 표시한다
-	}
+}
 int main(int argc, char **argv)// 노드 메인 함수
 {
 	ros::init(argc, argv, "path_subscriber");  // 노드명 초기화
