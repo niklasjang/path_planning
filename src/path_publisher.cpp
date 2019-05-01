@@ -22,6 +22,9 @@ private :
 	ros::NodeHandle nh; // ROS 시스템과 통신을 위한 노드 핸들 선언
 	ros::Publisher path_pub;// = nh.advertise<niklasjang_path_planning::MsgTutorial>("/path1/cmd_vel", 1000);
 	ros::Subscriber pddl_sub;
+	vector<std::string> ins;
+	vector <pair<std::string, pair<std::string, std::string> > > next;
+	string pddl_result;
 public:
 	void Initialize(void);
 	void SetMsg(double _x, double _z){
@@ -29,7 +32,7 @@ public:
 		twist.angular.z = _z;
 	}
 	void RollRoll(double spen);
-	
+	void msgCallback(const std_msgs::StringConstPtr& pddl_result);
 	void GoStraight(void){
 		SetMsg(0.3, 0.0);
 		RollRoll(5);
@@ -52,9 +55,12 @@ public:
 		SetMsg(0.0, 0.0);
 		RollRoll(0.2);
 	}
+	void split_inst(vector<std::string> &arr, std::string& str, const std::string& delim);
+	void split_next(vector<pair<std::string, pair<std::string, std::string> > > &arr, std::string& str, const std::string& delim);
+	void split(void);
 };
 
-void split_inst(vector<std::string> &arr, std::string& str, const std::string& delim) {
+void MY_ROBOT::split_inst(vector<std::string> &arr, std::string& str, const std::string& delim) {
 	size_t pos = 0;		
 	std::string token;
 	while ((pos = str.find(delim)) != std::string::npos) { //delim ���ڸ� ã������
@@ -67,7 +73,7 @@ void split_inst(vector<std::string> &arr, std::string& str, const std::string& d
 	arr.push_back(str);
 }
 
-void split_next(vector <pair<std::string, pair<std::string, std::string> > > &arr, std::string& str, const std::string& delim) {
+void MY_ROBOT::split_next(vector <pair<std::string, pair<std::string, std::string> > > &arr, std::string& str, const std::string& delim) {
 	size_t pos = 0;
 	std::string token;
 	int index = 0;
@@ -89,21 +95,20 @@ void split_next(vector <pair<std::string, pair<std::string, std::string> > > &ar
 	
 }
 
-void msgCallback(const std_msgs::StringConstPtr& pddl_result)
+void MY_ROBOT::msgCallback(const std_msgs::StringConstPtr& _pddl_result)
 {
 	//ROS_INFO("pddl_result is of type: %s", typeid(pddl_result).name()); 
 	//ROS_INFO("pddl_result-> is of type: %s", typeid(pddl_result->data.c_str()).name()); 
-	ROS_INFO(pddl_result->data.c_str());
-	std::string str = pddl_result->data;
-	
-	ROS_INFO(str.c_str());
-
+	ROS_INFO(_pddl_result->data.c_str());
+	pddl_result = _pddl_result->data;
+	split();
 }
 
 void MY_ROBOT::Initialize(void){
+	MY_ROBOT my_robot;
 	path_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
 	// 루프 주기를 설정한다. "10" 이라는 것은 10Hz를 말하는 것으로 0.1초 간격으로 반복된다
-	pddl_sub = nh.subscribe("/result", 1000, msgCallback);
+	pddl_sub = nh.subscribe("/result", 1000, &MY_ROBOT::msgCallback, &my_robot);
 	ros::Rate loop_rate(10);
 }
 
@@ -127,7 +132,27 @@ void MY_ROBOT::RollRoll(double spen){
 	}
 }
 
+void MY_ROBOT::split(void){
+	int i = 0;
+	std::string pddl_result = "[ t7,x2,y2,move-left t6,x3,y2,move-down t3,x3,y1,move-right t7,x2,y1,move-up ]";
+	string delimiter = " ";
+	
+	split_inst(ins, pddl_result, delimiter);
+	
+	ins.pop_back(); //�������� ������
+	delimiter = ",";
+	for (int i = 1; i < ins.size(); i++) { //ó������ �ڸ��� �ʴ´�.
+		//cout << ins[i] << "\n";
+		split_next(next, ins[i] , delimiter);
+	}
+	
+	//cout << next.size() << "\n";
+	for (int i = 0; i < next.size(); i++) {
+		cout << "(" << next[i].first <<"," << next[i].second.first << "," << next[i].second.second << ")\n";
+	}
 
+	cout << next[0].second.first << "\n";
+}
 
 int main(int argc, char **argv)// 노드 메인 함수
 {	
@@ -143,7 +168,7 @@ int main(int argc, char **argv)// 노드 메인 함수
 	ros::Duration(2.0).sleep();
 	robot.TurnRight();
 	*/
-	
+
 	ros::spin();
 }
 
