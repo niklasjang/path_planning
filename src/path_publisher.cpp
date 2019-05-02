@@ -128,20 +128,20 @@ public:
 	void msgCallback(const std_msgs::StringConstPtr& pddl_result);
 	void stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
 	void GoStraight(void){
-		SetMsg(0.3, 0.0);
+		SetMsg(0.7, 0.0);
 		RollRoll(5);
 		Stop();
 	}
 
 	void TurnLeft(void){
-		SetMsg(0.0, +1.4);
-		RollRoll(1.0);
+		SetMsg(0.0, -2.2);
+		RollRoll(1.5);
 		Stop();
 	}
 
 	void TurnRight(void){
-		SetMsg(0.0, -1.4);
-		RollRoll(1.0);
+		SetMsg(0.0, +2.2);
+		RollRoll(1.5);
 		Stop();
 	}
 
@@ -156,6 +156,7 @@ public:
 		return next;
 	}
 	void control(void);
+	void control2(void);
 	friend class Roomba;
 };
 
@@ -259,10 +260,12 @@ void MY_ROBOT::split(void){
 	//cout << next[0].second.first << "\n";
 }
 
-
+//Determin what roomba will subscribe topic
 void MY_ROBOT::control(void){
 	//ROS_INFO("CONTROL");
+	path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
 
+	/*
 	for (int i = 0; i < next.size(); i++) {
 		//ROS_INFO(next[i].first.c_str());
 		//ROS_INFO(next[i].second.first.c_str());
@@ -296,8 +299,14 @@ void MY_ROBOT::control(void){
 
 		//Test
 	}
-	ROS_INFO("control done");
+	ROS_INFO("control done");*/
 }
+
+void MY_ROBOT::control2(void){
+	//ROS_INFO("CONTROL");
+	path_pub = nh.advertise<geometry_msgs::Twist>("/robot3/cmd_vel", 1000);
+}
+
 int main(int argc, char **argv)// 노드 메인 함수
 {	
 	ros::init(argc, argv, "path_publisher"); // 노드명 초기화
@@ -305,19 +314,21 @@ int main(int argc, char **argv)// 노드 메인 함수
 	MY_ROBOT robot;
 	robot.Initialize();
 	ros::Rate loop_rate(10);
-	/*
-	ros::Duration(2.0).sleep();
-	robot.GoStraight();
-	ros::Duration(2.0).sleep();
-	robot.TurnLeft();
-	ros::Duration(2.0).sleep();
-	robot.TurnRight();
-	*/
+	
 	while (ros::ok())
 	{	
 		ROS_INFO("Waiting for PPDL result");
 		if(robot.GetNext().size() != 0){
 			robot.control();
+			ros::Duration(2.0).sleep();
+			robot.GoStraight();
+			
+
+			robot.control2();
+			robot.TurnRight();
+			ros::Duration(2.0).sleep();
+			robot.GoStraight();
+			
 			return 0;
   		}
 	  	ros::spinOnce();  
