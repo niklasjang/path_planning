@@ -8,23 +8,116 @@
 #include "niklasjang_path_planning/MsgTutorial.h"
 //===================================
 //Spliter header
-
+using namespace std;
 #include <string>
 #include <vector>
 
-//=========type check
-#include <typeinfo>
-using namespace std;
+//=========state check
+ #include "gazebo_msgs/ModelStates.h"
+
+class Roomba{
+private:
+	vector< pair<double, double> > curr;
+	vector< pair<double, double> > dest;
+	vector< double > yaw;
+	ros::Subscriber model_state_sub;
+	ros::NodeHandle nh2;
+public:
+	bool state_sub; //if pddl result is loaded become true. otherwise false.
+	Roomba(){
+		model_state_sub = nh2.subscribe("/gazebo/model_states", 1000, &Roomba::stateCallback, this);
+		state_sub = false;
+		for(int i=0; i<8; i++){
+			curr.push_back(make_pair(0.0,0.0));
+			dest.push_back(make_pair(0.0,0.0));
+			yaw.push_back(0.0);
+		}
+	}
+	void SetCurrX(int index, double x){
+		curr[index].first= x;
+	}
+	void SetCurrY(int index, double x){
+		curr[index].second= x;
+	}
+	void SetDestX(int index, double x){
+		dest[index].first= x;
+	}
+	void SetDestY(int index, double x){
+		dest[index].second= x;
+	}
+	void SetYaw(int index, double x){
+		yaw[index] = x;
+	}
+	double GetCurrX(int index){
+		return curr[index].first;
+	}
+	double GetCurrY(int index){
+		return curr[index].second;
+	}
+	double GetDestX(int index){
+		return dest[index].first;
+	}
+	double GetDestY(int index){
+		return dest[index].second;
+	}
+	double GetYaw(int index){
+		return yaw[index];
+	}
+	void stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
+	friend class MY_ROBOT;
+};
+
+void Roomba::stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
+{	
+	//ROS_INFO("stateCallback");
+
+	for(int i=1; i<9; i++){
+		//ROS_INFO(msg->name[i].c_str());
+		if(msg->name[i] == "create1"){
+			SetCurrX(0, msg->pose[i].position.x);
+			SetCurrX(0, msg->pose[i].position.y);
+		}else if(msg->name[i] == "create2"){
+			SetCurrX(1, msg->pose[i].position.x);
+			SetCurrX(1, msg->pose[i].position.y);
+		}else if(msg->name[i] == "create3"){
+			SetCurrX(2, msg->pose[i].position.x);
+			SetCurrX(2, msg->pose[i].position.y);
+		}else if(msg->name[i] == "create4"){
+			SetCurrX(3, msg->pose[i].position.x);
+			SetCurrX(3, msg->pose[i].position.y);
+		}else if(msg->name[i] == "create5"){
+			SetCurrX(4, msg->pose[i].position.x);
+			SetCurrX(4, msg->pose[i].position.y);
+		}else if(msg->name[i] == "create6"){
+			SetCurrX(5, msg->pose[i].position.x);
+			SetCurrX(5, msg->pose[i].position.y);
+		}else if(msg->name[i] == "create7"){
+			SetCurrX(6, msg->pose[i].position.x);
+			SetCurrX(6, msg->pose[i].position.y);
+		}else if(msg->name[i] == "create8"){
+			SetCurrX(7, msg->pose[i].position.x);
+			SetCurrX(7, msg->pose[i].position.y);
+		}else{
+			ROS_INFO("i is %d", i);
+			ROS_INFO("Sth wrong!");
+		}
+	}
+	//ROS_INFO("stateCallback done!");
+	state_sub = true;
+}
+
 
 class MY_ROBOT{
+
 private :
 	geometry_msgs::Twist twist;
 	ros::NodeHandle nh; // ROS 시스템과 통신을 위한 노드 핸들 선언
 	ros::Publisher path_pub;// = nh.advertise<niklasjang_path_planning::MsgTutorial>("/path1/cmd_vel", 1000);
 	ros::Subscriber pddl_sub;
-	vector<string> ins;
+	vector <string> ins;
 	vector <pair<string, pair<string, string> > > next;
 	string pddl_result;
+	Roomba roomba;
 public:
 	void Initialize(void);
 	void SetMsg(double _x, double _z){
@@ -33,6 +126,7 @@ public:
 	}
 	void RollRoll(double spen);
 	void msgCallback(const std_msgs::StringConstPtr& pddl_result);
+	void stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
 	void GoStraight(void){
 		SetMsg(0.3, 0.0);
 		RollRoll(5);
@@ -62,6 +156,7 @@ public:
 		return next;
 	}
 	void control(void);
+	friend class Roomba;
 };
 
 void MY_ROBOT::split_inst(vector<string> &arr, string& str, const string& delim) {
@@ -107,9 +202,11 @@ void MY_ROBOT::msgCallback(const std_msgs::StringConstPtr& _pddl_result)
 {	
 	//ROS_INFO("MSGCALLBACK");
 	pddl_result = _pddl_result->data;
-	//ROS_INFO("Subscribe data : %s", pddl_result.c_str());
+	ROS_INFO("Subscribe data : %s", pddl_result.c_str());
 	split();
 }
+
+
 
 void MY_ROBOT::Initialize(void){
 	MY_ROBOT my_robot;
@@ -167,17 +264,39 @@ void MY_ROBOT::control(void){
 	//ROS_INFO("CONTROL");
 
 	for (int i = 0; i < next.size(); i++) {
-		ROS_INFO(next[i].first.c_str());
-		ROS_INFO(next[i].second.first.c_str());
-		ROS_INFO(next[i].second.second.c_str());
-		
-	}
-	switch(next[i].first){
-		case t1:
+		//ROS_INFO(next[i].first.c_str());
+		//ROS_INFO(next[i].second.first.c_str());
+		//ROS_INFO(next[i].second.second.c_str());
+		if (next[i].first == "t1"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot1/cmd_vel", 1000);
+		}else if (next[i].first == "t2"){
+			path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
+		}else if (next[i].first == "t3"){
+			path_pub = nh.advertise<geometry_msgs::Twist>("/robot3/cmd_vel", 1000);
+		}else if (next[i].first == "t4"){
+			path_pub = nh.advertise<geometry_msgs::Twist>("/robot4/cmd_vel", 1000);
+		}else if (next[i].first == "t5"){
+			path_pub = nh.advertise<geometry_msgs::Twist>("/robot5/cmd_vel", 1000);
+		}else if (next[i].first == "t6"){
+			path_pub = nh.advertise<geometry_msgs::Twist>("/robot6/cmd_vel", 1000);
+		}else if (next[i].first == "t7"){
+			path_pub = nh.advertise<geometry_msgs::Twist>("/robot7/cmd_vel", 1000);
+		}else if (next[i].first == "t8"){
+			path_pub = nh.advertise<geometry_msgs::Twist>("/robot8/cmd_vel", 1000);
+		}else{
+			ROS_INFO("Sth is wrong!");
+		} 
+
+		//Currn model state
+		for(int i=1; i<9 ; i++){
+			ROS_INFO("i th: %d", i);
+			ROS_INFO("curr x is %f",roomba.GetCurrX(i));
+		}
+		//Make instruction
+
+		//Test
 	}
-
-
+	ROS_INFO("control done");
 }
 int main(int argc, char **argv)// 노드 메인 함수
 {	
@@ -186,8 +305,6 @@ int main(int argc, char **argv)// 노드 메인 함수
 	MY_ROBOT robot;
 	robot.Initialize();
 	ros::Rate loop_rate(10);
-
-	
 	/*
 	ros::Duration(2.0).sleep();
 	robot.GoStraight();
@@ -197,13 +314,14 @@ int main(int argc, char **argv)// 노드 메인 함수
 	robot.TurnRight();
 	*/
 	while (ros::ok())
-	{
-	  	ros::spinOnce();
-	  	loop_rate.sleep();
-	  	if(robot.GetNext().size() != 0){
+	{	
+		ROS_INFO("Waiting for PPDL result");
+		if(robot.GetNext().size() != 0){
 			robot.control();
-			return 0;	
-	  	}
+			return 0;
+  		}
+	  	ros::spinOnce();  
+	  	loop_rate.sleep();
 	}
 	ros::spin();
 }
