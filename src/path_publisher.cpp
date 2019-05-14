@@ -13,7 +13,10 @@ using namespace std;
 #include <vector>
 
 //=========state check
- #include "gazebo_msgs/ModelStates.h"
+#include "gazebo_msgs/ModelStates.h"
+// tf2 matrix
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
 
 class ROOMBA{
 private:
@@ -77,6 +80,13 @@ void ROOMBA::stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
 		if(msg->name[i] == "create1"){
 			SetCurrX(0, msg->pose[i].position.x);
 			SetCurrX(0, msg->pose[i].position.y);
+			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
+				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
+			tf2::Matrix3x3 m(q);
+			double roll, pitch, yaw;
+  			m.getRPY(roll, pitch, yaw);
+			SetYaw(0, yaw);
+			ROS_INFO("yaw : %f", yaw);
 		}else if(msg->name[i] == "create2"){
 			SetCurrX(1, msg->pose[i].position.x);
 			SetCurrX(1, msg->pose[i].position.y);
@@ -162,7 +172,7 @@ public:
 };
 
 void RONTROLLER::SplitByDelimiter(vector<string> &arr, string& str, const string& delim) {
-	//ROS_INFO("SPLIT INST");
+	ROS_INFO("SplitByDelimiter");
 	size_t pos = 0;		
 	string token;
 	while ((pos = str.find(delim)) != string::npos) { //delim ���ڸ� ã������
@@ -176,7 +186,7 @@ void RONTROLLER::SplitByDelimiter(vector<string> &arr, string& str, const string
 }
 
 void RONTROLLER::SplitNextInstruction(vector <pair<string, pair<string, string> > > &arr, string& str, const string& delim) {
-	//ROS_INFO("SPLIT NEXT");
+	ROS_INFO("SplitNextInstruction");
 	size_t pos = 0;
 	string token;
 	int index = 0;
@@ -185,13 +195,13 @@ void RONTROLLER::SplitNextInstruction(vector <pair<string, pair<string, string> 
 	string y_pos;
 	while ((pos = str.find(delim)) != string::npos) { 
 		token = str.substr(0, pos);  
-		//ROS_INFO(token.c_str());
-		//ROS_INFO("index is %d", index);
+		ROS_INFO(token.c_str());
+		ROS_INFO("index is %d", index);
 		if (index == 0) { obj = token; }
 		if (index == 1) { x_pos = token;}
 		if (index == 2) {
 			y_pos = token;
-			//ROS_INFO(obj.c_str(), x_pos.c_str(), y_pos.c_str());
+			ROS_INFO(obj.c_str(), x_pos.c_str(), y_pos.c_str());
 			next.push_back(make_pair(obj, make_pair(x_pos, y_pos)));
 		}
 		str.erase(0, pos + delim.length());
@@ -211,7 +221,7 @@ void RONTROLLER::msgCallback(const std_msgs::StringConstPtr& _pddl_result)
 
 
 void RONTROLLER::Initialize(void){
-	//REMOVED : RONTROLLER rontroller;
+	RONTROLLER rontroller;
 	path_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
 	// 루프 주기를 설정한다. "10" 이라는 것은 10Hz를 말하는 것으로 0.1초 간격으로 반복된다
 	pddl_sub = nh.subscribe("/result", 1000, &RONTROLLER::msgCallback, this);
@@ -238,7 +248,7 @@ void RONTROLLER::RollRoll(double spen){
 }
 
 void RONTROLLER::SplitPDDLResult(void){
-	//ROS_INFO("SPILT");
+	ROS_INFO("SplitPDDLResult");
 	int i = 0;
 	//string pddl_result = "[ t7,x2,y2,move-left t6,x3,y2,move-down t3,x3,y1,move-right t7,x2,y1,move-up ]";
 	string delimiter = " ";
@@ -248,24 +258,23 @@ void RONTROLLER::SplitPDDLResult(void){
 	instructionList.pop_back(); 
 	delimiter = ",";
 	for (int i = 1; i < instructionList.size(); i++) { 
-		//ROS_INFO("string is %s", ins[i].c_str());
+		//ROS_INFO("string is %s", instructionList[i].c_str());
 		//cout << ins[i] << "\n";
 		SplitNextInstruction(next, instructionList[i] , delimiter);
 	}
 	//ROS_INFO("next size is %d", next.size());
 	//cout << next.size() << "\n";
-	//for (int i = 0; i < next.size(); i++) {
-	//	ROS_INFO("result 1:",  next[i].first.c_str(),  next[i].second.first.c_str(), next[i].second.second.c_str());
-	//	//cout << "(" << next[i].first <<"," << next[i].second.first << "," << next[i].second.second << ")\n";
-	//}
+	for (int i = 0; i < next.size(); i++) {
+		//ROS_INFO("result 1: %s, %s, %s",  next[i].first.c_str(),  next[i].second.first.c_str(), next[i].second.second.c_str());
+		//cout << "(" << next[i].first <<"," << next[i].second.first << "," << next[i].second.second << ")\n";
+	}
 	//cout << next[0].second.first << "\n";
 }
 
 //Determin what roomba will subscribe topic
 void RONTROLLER::control(void){
-	//ROS_INFO("CONTROL");
+	ROS_INFO("CONTROL");
 	path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
-
 	/*
 	for (int i = 0; i < next.size(); i++) {
 		//ROS_INFO(next[i].first.c_str());
@@ -346,9 +355,12 @@ int main(int argc, char **argv)// 노드 메인 함수
 	
 	while (ros::ok())
 	{	
+		ROS_INFO("size %d",rontroller.GetNext().size());
 		ROS_INFO("Waiting for PPDL result");
 		if(rontroller.GetNext().size() != 0){
-			rontroller.simulation();
+			//ROS_INFO("Next is not empty\n");
+			//rontroller.simulation();
+			rontroller.control();
 			return 0;
   		}
 	  	ros::spinOnce();  
@@ -369,7 +381,7 @@ int main(int argc, char **argv)// 노드 메인 함수
 
 
 
-
+/*
 	//https://www.opentutorials.org/module/2894/16661 GOD !! GOD!!
 	// build tf quaternion
 	  tf2::Quaternion q( _odom_msg->pose.pose.orientation.x, 
@@ -382,3 +394,4 @@ int main(int argc, char **argv)// 노드 메인 함수
 	  double roll, pitch, yaw;
 	  m.getRPY(roll, pitch, yaw);
 
+*/
