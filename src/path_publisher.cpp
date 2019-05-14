@@ -86,28 +86,70 @@ void ROOMBA::stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
 			double roll, pitch, yaw;
   			m.getRPY(roll, pitch, yaw);
 			SetYaw(0, yaw);
-			ROS_INFO("yaw : %f", yaw);
+			//ROS_INFO("yaw : %f", yaw);
 		}else if(msg->name[i] == "create2"){
 			SetCurrX(1, msg->pose[i].position.x);
 			SetCurrX(1, msg->pose[i].position.y);
+			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
+				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
+			tf2::Matrix3x3 m(q);
+			double roll, pitch, yaw;
+  			m.getRPY(roll, pitch, yaw);
+			SetYaw(1, yaw);
 		}else if(msg->name[i] == "create3"){
 			SetCurrX(2, msg->pose[i].position.x);
 			SetCurrX(2, msg->pose[i].position.y);
+			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
+				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
+			tf2::Matrix3x3 m(q);
+			double roll, pitch, yaw;
+  			m.getRPY(roll, pitch, yaw);
+			SetYaw(2, yaw);
 		}else if(msg->name[i] == "create4"){
 			SetCurrX(3, msg->pose[i].position.x);
 			SetCurrX(3, msg->pose[i].position.y);
+			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
+				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
+			tf2::Matrix3x3 m(q);
+			double roll, pitch, yaw;
+  			m.getRPY(roll, pitch, yaw);
+			SetYaw(3, yaw);
 		}else if(msg->name[i] == "create5"){
 			SetCurrX(4, msg->pose[i].position.x);
 			SetCurrX(4, msg->pose[i].position.y);
+			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
+				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
+			tf2::Matrix3x3 m(q);
+			double roll, pitch, yaw;
+  			m.getRPY(roll, pitch, yaw);
+			SetYaw(4, yaw);
 		}else if(msg->name[i] == "create6"){
 			SetCurrX(5, msg->pose[i].position.x);
 			SetCurrX(5, msg->pose[i].position.y);
+			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
+				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
+			tf2::Matrix3x3 m(q);
+			double roll, pitch, yaw;
+  			m.getRPY(roll, pitch, yaw);
+			SetYaw(5, yaw);
 		}else if(msg->name[i] == "create7"){
 			SetCurrX(6, msg->pose[i].position.x);
 			SetCurrX(6, msg->pose[i].position.y);
+			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
+				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
+			tf2::Matrix3x3 m(q);
+			double roll, pitch, yaw;
+  			m.getRPY(roll, pitch, yaw);
+			SetYaw(6, yaw);
 		}else if(msg->name[i] == "create8"){
 			SetCurrX(7, msg->pose[i].position.x);
 			SetCurrX(7, msg->pose[i].position.y);
+			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
+				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
+			tf2::Matrix3x3 m(q);
+			double roll, pitch, yaw;
+  			m.getRPY(roll, pitch, yaw);
+			SetYaw(7, yaw);
 		}else{
 			ROS_INFO("i is %d", i);
 			ROS_INFO("Sth wrong!");
@@ -308,8 +350,8 @@ void RONTROLLER::control(void){
 		//Make instruction
 
 		//Test
-	}
-	ROS_INFO("control done");*/
+	}*/
+	ROS_INFO("control done");
 }
 
 
