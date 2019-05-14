@@ -167,8 +167,9 @@ private :
 	ros::NodeHandle nh;            // ROS 시스템과 통신을 위한 노드 핸들 선언
 	ros::Publisher path_pub;      // = nh.advertise<niklasjang_path_planning::MsgTutorial>("/path1/cmd_vel", 1000);
 	ros::Subscriber pddl_sub;
-	vector <string> instructionList;          //instruction string vector??
+	vector <string> instructionList;          //instruction string vector
 	vector <pair<string, pair<string, string> > > next; //<roomba_number, x_pos, y_pos>
+	vector <pair<string, string> > nextMove;
 	string pddl_result;           //Get long pddl result from server
 	ROOMBA roomba;
 public:
@@ -208,13 +209,17 @@ public:
 	vector <pair<string, pair<string, string> > >  GetNext(void){
 		return next;
 	}
+	vector <pair<string, string> > GetNextMove(void){
+		return nextMove;
+	}
 	void control(void);
 	void simulation(void);
+	int CheckOrientation(int);
 	friend class ROOMBA;
 };
 
 void RONTROLLER::SplitByDelimiter(vector<string> &arr, string& str, const string& delim) {
-	ROS_INFO("SplitByDelimiter");
+	//ROS_INFO("SplitByDelimiter");
 	size_t pos = 0;		
 	string token;
 	while ((pos = str.find(delim)) != string::npos) { //delim ���ڸ� ã������
@@ -228,25 +233,33 @@ void RONTROLLER::SplitByDelimiter(vector<string> &arr, string& str, const string
 }
 
 void RONTROLLER::SplitNextInstruction(vector <pair<string, pair<string, string> > > &arr, string& str, const string& delim) {
-	ROS_INFO("SplitNextInstruction");
+	//ROS_INFO("SplitNextInstruction");
 	size_t pos = 0;
 	string token;
 	int index = 0;
 	string obj;
 	string x_pos;
 	string y_pos;
+	string move;
 	while ((pos = str.find(delim)) != string::npos) { 
 		token = str.substr(0, pos);  
-		ROS_INFO(token.c_str());
-		ROS_INFO("index is %d", index);
+		//ROS_INFO(token.c_str());
+		//ROS_INFO("index is %d", index);
 		if (index == 0) { obj = token; }
 		if (index == 1) { x_pos = token;}
 		if (index == 2) {
 			y_pos = token;
-			ROS_INFO(obj.c_str(), x_pos.c_str(), y_pos.c_str());
+			//ROS_INFO("next.push_back", obj.c_str(), x_pos.c_str(), y_pos.c_str());
 			next.push_back(make_pair(obj, make_pair(x_pos, y_pos)));
 		}
+		
+		//ROS_INFO("Before str %s", str.c_str());
 		str.erase(0, pos + delim.length());
+		//ROS_INFO("after str %s", str.c_str());
+		if( index == 2) {
+			ROS_INFO("nextMove.push_back %s, %s", obj.c_str(), str.c_str());
+			nextMove.push_back(make_pair(obj,str));
+		}
 		index++;
 	}
 	
@@ -256,7 +269,7 @@ void RONTROLLER::msgCallback(const std_msgs::StringConstPtr& _pddl_result)
 {	
 	//ROS_INFO("MSGCALLBACK");
 	pddl_result = _pddl_result->data;
-	ROS_INFO("Subscribe data : %s", pddl_result.c_str());
+	//ROS_INFO("Subscribe data : %s", pddl_result.c_str());
 	SplitPDDLResult();
 }
 
@@ -290,14 +303,14 @@ void RONTROLLER::RollRoll(double spen){
 }
 
 void RONTROLLER::SplitPDDLResult(void){
-	ROS_INFO("SplitPDDLResult");
+	//ROS_INFO("SplitPDDLResult");
 	int i = 0;
 	//string pddl_result = "[ t7,x2,y2,move-left t6,x3,y2,move-down t3,x3,y1,move-right t7,x2,y1,move-up ]";
 	string delimiter = " ";
 	
 	SplitByDelimiter(instructionList, pddl_result, delimiter);
 	
-	instructionList.pop_back(); 
+	instructionList.pop_back(); //Remove ]
 	delimiter = ",";
 	for (int i = 1; i < instructionList.size(); i++) { 
 		//ROS_INFO("string is %s", instructionList[i].c_str());
@@ -314,43 +327,174 @@ void RONTROLLER::SplitPDDLResult(void){
 }
 
 //Determin what roomba will subscribe topic
-void RONTROLLER::control(void){
-	ROS_INFO("CONTROL");
-	path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
+
+int RONTROLLER::CheckOrientation(int haveToMoveIndex){
+	//Check current orientation
 	/*
+	return value
+			1      //Looking Up : return 1;
+		   /|
+		  / |
+		3 --+-- 4
+			|
+			2	   //else : return -1;
+	*/;
+	double yaw = roomba.GetYaw(haveToMoveIndex);
+	if (-0.5 <= yaw && yaw <= 0.5 ){
+		//Looking Down
+		return 2;
+	}else if (1.0 <= yaw && yaw <= 2.0 ){
+		//Looking Right
+		return 4;
+	}else if (-2.0 <= yaw && yaw  <= -1.0 ){
+		//Looking Left
+		return 3;
+	}else if (-2.5 >= yaw || yaw >= 2.5 ){
+		//Looking Up
+		return 1;
+	}else{
+		ROS_INFO("Really Bad orientation. %f", yaw);
+		return -1;
+	}
+}
+
+void RONTROLLER::control(void){
+	/*
+	Gazebo :
+	(-1, -1) (-1, 0) (-1, 1)
+	(0 , -1) (0 , 0) (0 , 1)
+	(1 , -1) (1 , 0) (1 , 1)
+
+	PDDL :
+	(x1 y1) (x2 y1) (x3 y1)
+	(x1 y2) (x2 y2) (x3 y2)
+	(x1 y3) (x2 y3) (x3 y3)
+	*/
+
+	//ROS_INFO("CONTROL");
+	int haveToMoveIndex = 0;
+	path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
 	for (int i = 0; i < next.size(); i++) {
 		//ROS_INFO(next[i].first.c_str());
 		//ROS_INFO(next[i].second.first.c_str());
 		//ROS_INFO(next[i].second.second.c_str());
 		if (next[i].first == "t1"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot1/cmd_vel", 1000);
+			haveToMoveIndex = 1;
 		}else if (next[i].first == "t2"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
+			haveToMoveIndex = 2;
 		}else if (next[i].first == "t3"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot3/cmd_vel", 1000);
+			haveToMoveIndex = 3;
 		}else if (next[i].first == "t4"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot4/cmd_vel", 1000);
+			haveToMoveIndex = 4;
 		}else if (next[i].first == "t5"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot5/cmd_vel", 1000);
+			haveToMoveIndex = 5;
 		}else if (next[i].first == "t6"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot6/cmd_vel", 1000);
+			haveToMoveIndex = 6;
 		}else if (next[i].first == "t7"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot7/cmd_vel", 1000);
+			haveToMoveIndex = 7;
 		}else if (next[i].first == "t8"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot8/cmd_vel", 1000);
+			haveToMoveIndex = 8;
 		}else{
 			ROS_INFO("Sth is wrong!");
-		} 
-
-		//Currn model state
-		for(int i=1; i<9 ; i++){
-			ROS_INFO("i th: %d", i);
-			ROS_INFO("curr x is %f",roomba.GetCurrX(i));
 		}
-		//Make instruction
 
-		//Test
-	}*/
+
+		int curr_orientation = CheckOrientation(haveToMoveIndex);
+		ROS_INFO("curr_orientation %d", curr_orientation);
+		ROS_INFO("nextMove[i].second %s", nextMove[i].second.c_str());
+		if (nextMove[i].second == "move-up"){
+			if (curr_orientation == 1){
+				GoStraight();
+			}else if (curr_orientation == 2){
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else if (curr_orientation == 3){
+				TurnRight();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else if (curr_orientation == 4){
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else{
+				ROS_INFO("nextMove move-up Sth Wrong!");
+			}
+		}else if (nextMove[i].second == "move-down"){
+			if (curr_orientation == 1){
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else if (curr_orientation == 2){
+				GoStraight();
+			}else if (curr_orientation == 3){
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else if (curr_orientation == 4){
+				TurnRight();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else{
+				ROS_INFO("nextMove move-down Sth Wrong!");
+			}
+		}else if (nextMove[i].second == "move-left"){
+			if (curr_orientation == 1){
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else if (curr_orientation == 2){
+				TurnRight();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else if (curr_orientation == 3){
+				GoStraight();
+			}else if (curr_orientation == 4){
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else{
+				ROS_INFO("nextMove move-left Sth Wrong!");
+			}
+		}else if (nextMove[i].second == "move-right"){
+			if (curr_orientation == 1){
+				TurnRight();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else if (curr_orientation == 2){
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else if (curr_orientation == 3){
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				TurnLeft();
+				ros::Duration(2.0).sleep();
+				GoStraight();
+			}else if (curr_orientation == 4){
+				GoStraight();
+			}else{
+				ROS_INFO("nextMove move-right Sth Wrong!");
+			}
+		}else {
+			ROS_INFO("nextMove Sth Wrong!");
+		}
+	}
+	
 	ROS_INFO("control done");
 }
 
@@ -400,7 +544,7 @@ int main(int argc, char **argv)// 노드 메인 함수
 		ROS_INFO("size %d",rontroller.GetNext().size());
 		ROS_INFO("Waiting for PPDL result");
 		if(rontroller.GetNext().size() != 0){
-			//ROS_INFO("Next is not empty\n");
+			ROS_INFO("Next is not empty\n");
 			//rontroller.simulation();
 			rontroller.control();
 			return 0;
