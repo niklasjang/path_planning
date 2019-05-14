@@ -15,19 +15,20 @@ using namespace std;
 //=========state check
  #include "gazebo_msgs/ModelStates.h"
 
-class Roomba{
+class ROOMBA{
 private:
-	vector< pair<double, double> > curr;
-	vector< pair<double, double> > dest;
-	vector< double > yaw;
+	vector< pair<double, double> > curr; //current position
+	vector< pair<double, double> > dest; //destination position
+	vector< double > yaw;                //current yaw
 	ros::Subscriber model_state_sub;
 	ros::NodeHandle nh2;
 public:
-	bool state_sub; //if pddl result is loaded become true. otherwise false.
-	Roomba(){
-		model_state_sub = nh2.subscribe("/gazebo/model_states", 1000, &Roomba::stateCallback, this);
+	bool state_sub = false;              //if pddl result is loaded, this variable become true.
+	ROOMBA(){
+		model_state_sub = nh2.subscribe("/gazebo/model_states", 1000, &ROOMBA::stateCallback, this);
 		state_sub = false;
-		for(int i=0; i<8; i++){
+		//Set 8 roomba's initial positions as (0.0, 0.0)
+		for(int i=0; i<8; i++){                    
 			curr.push_back(make_pair(0.0,0.0));
 			dest.push_back(make_pair(0.0,0.0));
 			yaw.push_back(0.0);
@@ -64,12 +65,12 @@ public:
 		return yaw[index];
 	}
 	void stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
-	friend class MY_ROBOT;
+	friend class RONTROLLER;
 };
 
-void Roomba::stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
+void ROOMBA::stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
 {	
-	//ROS_INFO("stateCallback");
+	//ROS_INFO("Get current position of models from /gazebo/model_states messeges");
 
 	for(int i=1; i<9; i++){
 		//ROS_INFO(msg->name[i].c_str());
@@ -103,21 +104,21 @@ void Roomba::stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
 		}
 	}
 	//ROS_INFO("stateCallback done!");
-	state_sub = true;
+	state_sub = true; //Get current position of 8 roombas
 }
 
 
-class MY_ROBOT{
+class RONTROLLER{
 
 private :
 	geometry_msgs::Twist twist;
-	ros::NodeHandle nh; // ROS 시스템과 통신을 위한 노드 핸들 선언
-	ros::Publisher path_pub;// = nh.advertise<niklasjang_path_planning::MsgTutorial>("/path1/cmd_vel", 1000);
+	ros::NodeHandle nh;            // ROS 시스템과 통신을 위한 노드 핸들 선언
+	ros::Publisher path_pub;      // = nh.advertise<niklasjang_path_planning::MsgTutorial>("/path1/cmd_vel", 1000);
 	ros::Subscriber pddl_sub;
-	vector <string> ins;
-	vector <pair<string, pair<string, string> > > next;
-	string pddl_result;
-	Roomba roomba;
+	vector <string> instructionList;          //instruction string vector??
+	vector <pair<string, pair<string, string> > > next; //<roomba_number, x_pos, y_pos>
+	string pddl_result;           //Get long pddl result from server
+	ROOMBA roomba;
 public:
 	void Initialize(void);
 	void SetMsg(double _x, double _z){
@@ -149,18 +150,18 @@ public:
 		SetMsg(0.0, 0.0);
 		RollRoll(0.2);
 	}
-	void split_inst(vector<string> &arr, string& str, const string& delim);
-	void split_next(vector<pair<string, pair<string, string> > > &arr, string& str, const string& delim);
-	void split(void);
+	void SplitByDelimiter(vector<string> &arr, string& str, const string& delim);
+	void SplitNextInstruction(vector<pair<string, pair<string, string> > > &arr, string& str, const string& delim);
+	void SplitPDDLResult(void);
 	vector <pair<string, pair<string, string> > >  GetNext(void){
 		return next;
 	}
 	void control(void);
-	void control2(void);
-	friend class Roomba;
+	void simulation(void);
+	friend class ROOMBA;
 };
 
-void MY_ROBOT::split_inst(vector<string> &arr, string& str, const string& delim) {
+void RONTROLLER::SplitByDelimiter(vector<string> &arr, string& str, const string& delim) {
 	//ROS_INFO("SPLIT INST");
 	size_t pos = 0;		
 	string token;
@@ -168,13 +169,13 @@ void MY_ROBOT::split_inst(vector<string> &arr, string& str, const string& delim)
 		token = str.substr(0, pos);  //ó������ pos ���̸�ŭ�� ���ڸ� token����
 		//ROS_INFO(token.c_str());
 		str.erase(0, pos + delim.length());
-		ins.push_back(token);
+		arr.push_back(token);
 	}
 	//ROS_INFO(token.c_str());
 	arr.push_back(str);
 }
 
-void MY_ROBOT::split_next(vector <pair<string, pair<string, string> > > &arr, string& str, const string& delim) {
+void RONTROLLER::SplitNextInstruction(vector <pair<string, pair<string, string> > > &arr, string& str, const string& delim) {
 	//ROS_INFO("SPLIT NEXT");
 	size_t pos = 0;
 	string token;
@@ -199,24 +200,24 @@ void MY_ROBOT::split_next(vector <pair<string, pair<string, string> > > &arr, st
 	
 }
 
-void MY_ROBOT::msgCallback(const std_msgs::StringConstPtr& _pddl_result)
+void RONTROLLER::msgCallback(const std_msgs::StringConstPtr& _pddl_result)
 {	
 	//ROS_INFO("MSGCALLBACK");
 	pddl_result = _pddl_result->data;
 	ROS_INFO("Subscribe data : %s", pddl_result.c_str());
-	split();
+	SplitPDDLResult();
 }
 
 
 
-void MY_ROBOT::Initialize(void){
-	MY_ROBOT my_robot;
+void RONTROLLER::Initialize(void){
+	//REMOVED : RONTROLLER rontroller;
 	path_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
 	// 루프 주기를 설정한다. "10" 이라는 것은 10Hz를 말하는 것으로 0.1초 간격으로 반복된다
-	pddl_sub = nh.subscribe("/result", 1000, &MY_ROBOT::msgCallback, this);
+	pddl_sub = nh.subscribe("/result", 1000, &RONTROLLER::msgCallback, this);
 }
 
-void MY_ROBOT::RollRoll(double spen){
+void RONTROLLER::RollRoll(double spen){
 	ros::Time beginTime = ros::Time::now();
 	double begin = beginTime.toSec();
 	ros::Duration secondsIWantToSendMessagesFor = ros::Duration(spen); 
@@ -236,20 +237,20 @@ void MY_ROBOT::RollRoll(double spen){
 	}
 }
 
-void MY_ROBOT::split(void){
+void RONTROLLER::SplitPDDLResult(void){
 	//ROS_INFO("SPILT");
 	int i = 0;
 	//string pddl_result = "[ t7,x2,y2,move-left t6,x3,y2,move-down t3,x3,y1,move-right t7,x2,y1,move-up ]";
 	string delimiter = " ";
 	
-	split_inst(ins, pddl_result, delimiter);
+	SplitByDelimiter(instructionList, pddl_result, delimiter);
 	
-	ins.pop_back(); 
+	instructionList.pop_back(); 
 	delimiter = ",";
-	for (int i = 1; i < ins.size(); i++) { 
+	for (int i = 1; i < instructionList.size(); i++) { 
 		//ROS_INFO("string is %s", ins[i].c_str());
 		//cout << ins[i] << "\n";
-		split_next(next, ins[i] , delimiter);
+		SplitNextInstruction(next, instructionList[i] , delimiter);
 	}
 	//ROS_INFO("next size is %d", next.size());
 	//cout << next.size() << "\n";
@@ -261,7 +262,7 @@ void MY_ROBOT::split(void){
 }
 
 //Determin what roomba will subscribe topic
-void MY_ROBOT::control(void){
+void RONTROLLER::control(void){
 	//ROS_INFO("CONTROL");
 	path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
 
@@ -302,39 +303,58 @@ void MY_ROBOT::control(void){
 	ROS_INFO("control done");*/
 }
 
-void MY_ROBOT::control2(void){
-	//ROS_INFO("CONTROL");
+
+
+void RONTROLLER::simulation(void){
+	path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
+	ros::Duration(2.0).sleep();
+	GoStraight();
+	
 	path_pub = nh.advertise<geometry_msgs::Twist>("/robot3/cmd_vel", 1000);
+	TurnRight();
+	ros::Duration(2.0).sleep();
+	GoStraight();
+
+	path_pub = nh.advertise<geometry_msgs::Twist>("/robot5/cmd_vel", 1000);
+	TurnRight();
+	ros::Duration(2.0).sleep();
+	TurnRight();
+	ros::Duration(2.0).sleep();
+	GoStraight();
+
+	path_pub = nh.advertise<geometry_msgs::Twist>("/robot8/cmd_vel", 1000);
+	TurnRight();
+	ros::Duration(2.0).sleep();
+	TurnRight();
+	ros::Duration(2.0).sleep();
+	GoStraight();
+
+	path_pub = nh.advertise<geometry_msgs::Twist>("/robot7/cmd_vel", 1000);
+	TurnLeft();
+	ros::Duration(2.0).sleep();
+	GoStraight();
 }
+
 
 int main(int argc, char **argv)// 노드 메인 함수
 {	
 	ros::init(argc, argv, "path_publisher"); // 노드명 초기화
 	
-	MY_ROBOT robot;
-	robot.Initialize();
-	ros::Rate loop_rate(10);
+	RONTROLLER rontroller;
+	rontroller.Initialize(); //Subscribe pddl_result from server and then split to next instruction vector
+	ros::Rate loop_rate(10); // subscriber는 메시지가 오는 즉시 callback을 요청하고 바로 그 다음 메시지를 기다립니다. 
 	
 	while (ros::ok())
 	{	
 		ROS_INFO("Waiting for PPDL result");
-		if(robot.GetNext().size() != 0){
-			robot.control();
-			ros::Duration(2.0).sleep();
-			robot.GoStraight();
-			
-
-			robot.control2();
-			robot.TurnRight();
-			ros::Duration(2.0).sleep();
-			robot.GoStraight();
-			
+		if(rontroller.GetNext().size() != 0){
+			rontroller.simulation();
 			return 0;
   		}
 	  	ros::spinOnce();  
 	  	loop_rate.sleep();
 	}
-	ros::spin();
+	ros::spin(); // ros::spin() 함수를 이용하여 반복 구독을 수행하고 callback을 지속적으로 요청합니다. 
 }
 
 
@@ -346,3 +366,19 @@ int main(int argc, char **argv)// 노드 메인 함수
 // TODO : Make turn function
 // TODO : Make go straight function
 // TODO : According to plan call function
+
+
+
+
+	//https://www.opentutorials.org/module/2894/16661 GOD !! GOD!!
+	// build tf quaternion
+	  tf2::Quaternion q( _odom_msg->pose.pose.orientation.x, 
+	  	_odom_msg->pose.pose.orientation.y, 
+	  	_odom_msg->pose.pose.orientation.z, 
+	  	_odom_msg->pose.pose.orientation.w );
+	  // build tf matrix from the quaternion
+	  tf2::Matrix3x3 m(q);
+	  // get angles
+	  double roll, pitch, yaw;
+	  m.getRPY(roll, pitch, yaw);
+
