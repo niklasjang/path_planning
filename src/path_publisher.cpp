@@ -25,9 +25,11 @@ private:
 	vector< double > yaw;                //current yaw
 	ros::Subscriber model_state_sub;
 	ros::NodeHandle nh2;
+	int running_index;					 //represent which roomba is running for this time quantom.
 public:
 	bool state_sub = false;              //if pddl result is loaded, this variable become true.
 	ROOMBA(){
+		running_index = 0;
 		model_state_sub = nh2.subscribe("/gazebo/model_states", 1000, &ROOMBA::stateCallback, this);
 		state_sub = false;
 		//Set 8 roomba's initial positions as (0.0, 0.0)
@@ -36,6 +38,9 @@ public:
 			dest.push_back(make_pair(0.0,0.0));
 			yaw.push_back(0.0);
 		}
+	}
+	void SetRunningIndex(int index){
+		running_index = index;
 	}
 	void SetCurrX(int index, double x){
 		curr[index].first= x;
@@ -178,30 +183,30 @@ public:
 		twist.linear.x = _x;
 		twist.angular.z = _z;
 	}
-	void RollRoll(double spen);
+	void RollRoll(double spen, double target_x, double target_z, double target_orient);
 	void msgCallback(const std_msgs::StringConstPtr& pddl_result);
 	void stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
-	void GoStraight(void){
-		SetMsg(0.7, 0.0);
-		RollRoll(5);
+	void GoStraight(double target_orient){
+		//SetMsg(0.7, 0.0);
+		RollRoll(5, 0.7, 0.0, target_orient);
 		Stop();
 	}
 
-	void TurnLeft(void){
-		SetMsg(0.0, -2.2);
-		RollRoll(1.5);
+	void TurnLeft(double target_orient){
+		//SetMsg(0.0, -2.2);
+		RollRoll(1.5, 0.0, -2.2, target_orient );
 		Stop();
 	}
 
-	void TurnRight(void){
-		SetMsg(0.0, +2.2);
-		RollRoll(1.5);
+	void TurnRight(double target_orient){
+		//SetMsg(0.0, +2.2);
+		RollRoll(1.5, 0.0, +2.2, target_orient);
 		Stop();
 	}
 
 	void Stop(void){
-		SetMsg(0.0, 0.0);
-		RollRoll(0.2);
+		//SetMsg(0.0, 0.0);
+		RollRoll(0.2, 0.0, 0.0, 0); //target_orient 0 means stop
 	}
 	void SplitByDelimiter(vector<string> &arr, string& str, const string& delim);
 	void SplitNextInstruction(vector<pair<string, pair<string, string> > > &arr, string& str, const string& delim);
@@ -282,24 +287,76 @@ void RONTROLLER::Initialize(void){
 	pddl_sub = nh.subscribe("/result", 1000, &RONTROLLER::msgCallback, this);
 }
 
-void RONTROLLER::RollRoll(double spen){
+void RONTROLLER::RollRoll(double spen, double target_x, double target_z, double _target_orient){
+	SetMsg(target_x, target_z);
 	ros::Time beginTime = ros::Time::now();
 	double begin = beginTime.toSec();
 	ros::Duration secondsIWantToSendMessagesFor = ros::Duration(spen); 
 	double end = secondsIWantToSendMessagesFor.toSec() + begin;
 	double current = 0.0;
+
+
+	double f_gain = 0.0;
+	double p_gain = 1.0;
+	double d_gain = 0.5;
+
+	double target_orient = _target_orient;
+	double target_yaw = [0.0, 0.0]; //default stop
+	if(target_orient == 1){
+		target_yaw = [-3.0, +3.0]; //
+	}else if(target_orient == 2){
+		target_yaw = [-0.5, +0.5];
+	}else if(target_orient == 3){
+		target_yaw = [-2.0, -1.0];
+	}else if(target_orient == 4){
+		target_yaw = [+1.0, +2.0];
+	}
+
+
+	double prv_error = 0.0;
+	double error = 0.0;
+	double curr_yaw = GetYaw(running_index);
+	double delta_error = 0.0;
+	double delta_error_y = 0.0;
 	while(current = ros::Time::now().toSec() < end )
 	{
 		current = ros::Time::now().toSec();
 		//ROS_INFO("x, z : (%f, %f) \n", twist.linear.x, twist.angular.z);
 		//ROS_INFO("current : %f \n", current);
 		//ROS_INFO("end : %f \n", end);
+		
+		//===== PID Control
+		prv_error = error;
+		error = target_yaw - curr_yaw;
+		curr_yaw = GetYaw(running_index);
+		delta_error =(error - prv_error) / 0.001;
+		double PD_yaw = (f_gain * 0.0) + 
+						(p_gain * error) + 
+						(d_gain * delta_error);
+
 		path_pub.publish(twist);
 
 		// Time between messages, so you don't blast out an thousands of 
 		// messages in your 3 secondperiod
 		ros::Duration(0.1).sleep();
 	}
+
+	double pose_x, pose_y, accel_x, accel_y;
+	pose_x = pose.pos.x;
+	pose_y = pose.pos.y;
+	accel_x = accel.x;
+	accel_y = accel.y;
+	double prev_error_x = this->error_x;
+	double prev_error_y = this->error_y;
+	this->error_x = this->target_x - pose_x;
+	this->error_y = this->target_y - pose_y;
+	double delta_error_x = (this->error_x - prev_error_x) / 0.001;
+	double delta_error_y = (this->error_y - prev_error_y) / 0.001;
+	double PD_force_x = this->f_gain * accel_x + this->p_gain * this->error_x + this->d_gain * delta_error_x;
+	double PD_force_y = this->f_gain * accel_y + this->p_gain * this->error_y + this->d_gain * delta_error_y;
+	this->SetForceToModel(PD_force_x, PD_force_y);
+
+
 }
 
 void RONTROLLER::SplitPDDLResult(void){
@@ -372,7 +429,6 @@ void RONTROLLER::control(void){
 	*/
 
 	//ROS_INFO("CONTROL");
-	int haveToMoveIndex = 0;
 	path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
 	for (int i = 0; i < next.size(); i++) {
 		//ROS_INFO(next[i].first.c_str());
@@ -380,34 +436,34 @@ void RONTROLLER::control(void){
 		//ROS_INFO(next[i].second.second.c_str());
 		if (next[i].first == "t1"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot1/cmd_vel", 1000);
-			haveToMoveIndex = 1;
+			SetRunningIndex(1);
 		}else if (next[i].first == "t2"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
-			haveToMoveIndex = 2;
+			SetRunningIndex(2);
 		}else if (next[i].first == "t3"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot3/cmd_vel", 1000);
-			haveToMoveIndex = 3;
+			SetRunningIndex(3);
 		}else if (next[i].first == "t4"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot4/cmd_vel", 1000);
-			haveToMoveIndex = 4;
+			SetRunningIndex(4);
 		}else if (next[i].first == "t5"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot5/cmd_vel", 1000);
-			haveToMoveIndex = 5;
+			SetRunningIndex(5);
 		}else if (next[i].first == "t6"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot6/cmd_vel", 1000);
-			haveToMoveIndex = 6;
+			SetRunningIndex(6);
 		}else if (next[i].first == "t7"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot7/cmd_vel", 1000);
-			haveToMoveIndex = 7;
+			SetRunningIndex(7);
 		}else if (next[i].first == "t8"){
 			path_pub = nh.advertise<geometry_msgs::Twist>("/robot8/cmd_vel", 1000);
-			haveToMoveIndex = 8;
+			SetRunningIndex(8);
 		}else{
 			ROS_INFO("Sth is wrong!");
 		}
 
 
-		int curr_orientation = CheckOrientation(haveToMoveIndex);
+		int curr_orientation = CheckOrientation(running_index);
 		ROS_INFO("curr_orientation %d", curr_orientation);
 		ROS_INFO("nextMove[i].second %s", nextMove[i].second.c_str());
 		if (nextMove[i].second == "move-up"){
