@@ -15,6 +15,7 @@ using namespace std;
 //=========state check
 #include "gazebo_msgs/ModelStates.h"
 // tf2 matrix
+#include <tf2_msgs/TFMessage.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
 
@@ -24,11 +25,13 @@ private:
 	vector< pair<double, double> > dest; //destination position
 	vector< double > yaw;                //current yaw
 	ros::Subscriber model_state_sub;
+	ros::Subscriber roomba_state_sub;    //Get actual roomba's state
 	ros::NodeHandle nh2;
 public:
 	bool state_sub = false;              //if pddl result is loaded, this variable become true.
 	ROOMBA(){
 		model_state_sub = nh2.subscribe("/gazebo/model_states", 1000, &ROOMBA::stateCallback, this);
+		model_state_sub = nh2.subscribe("/tf", 1000, &ROOMBA::roombaStateCallback, this);
 		state_sub = false;
 		//Set 8 roomba's initial positions as (0.0, 0.0)
 		for(int i=0; i<8; i++){                    
@@ -68,8 +71,20 @@ public:
 		return yaw[index];
 	}
 	void stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
+	void roombaStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
 	friend class RONTROLLER;
 };
+
+void ROOMBA::roombaStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg){
+	//msg[0].transforms.transform.rotation.x
+	geometry_msgs::Quaternion rot = msg->transforms[0].transform.rotation;
+	tf2::Quaternion q(rot.x, rot.y, rot.z, rot.w);
+	tf2::Matrix3x3 m(q);
+	double roll, pitch, yaw;
+  	m.getRPY(roll, pitch, yaw);
+  	ROS_INFO("Current yaw is %f\n", yaw);
+}
+
 
 void ROOMBA::stateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
 {	
