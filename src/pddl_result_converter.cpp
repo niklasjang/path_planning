@@ -1,7 +1,7 @@
 #include "niklasjang_path_planning/pddl_result_converter.h"
 
 PddlResultConverter::PddlResultConverter(){
-	pddl_subscriber = nh.subscribe("/result", 1000, &RONTROLLER::pddlResultCallback, this);
+	pddl_subscriber = nh.subscribe("/result", 1000, &PddlResultConverter::pddlResultCallback, this);
 }
 
 void PddlResultConverter::pddlResultCallback(const std_msgs::StringConstPtr& _pddl_result)
@@ -88,3 +88,8 @@ vector <pair<string, pair<string, string> > >  PddlResultConverter::getChunkComp
 	return chunk_componentsn;
 }
 */
+
+int main(void){
+	ROS_INFO("pddl_result_converter");
+	return 0;
+}
