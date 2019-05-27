@@ -31,7 +31,7 @@ public:
 	bool state_sub = false;              //if pddl result is loaded, this variable become true.
 	ROOMBA(){
 		model_state_sub = nh2.subscribe("/gazebo/model_states", 1000, &ROOMBA::stateCallback, this);
-		model_state_sub = nh2.subscribe("/tf", 1000, &ROOMBA::roombaStateCallback, this);
+		roomba_state_sub = nh2.subscribe("/tf", 10, &ROOMBA::roombaStateCallback, this);
 		state_sub = false;
 		//Set 8 roomba's initial positions as (0.0, 0.0)
 		for(int i=0; i<8; i++){                    
@@ -78,6 +78,10 @@ public:
 void ROOMBA::roombaStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg){
 	//msg[0].transforms.transform.rotation.x
 	geometry_msgs::Quaternion rot = msg->transforms[0].transform.rotation;
+	ROS_INFO("Current x is %f\n", rot.x);
+	ROS_INFO("Current y is %f\n", rot.y);
+	ROS_INFO("Current z is %f\n", rot.z);
+	
 	tf2::Quaternion q(rot.x, rot.y, rot.z, rot.w);
 	tf2::Matrix3x3 m(q);
 	double roll, pitch, yaw;
@@ -556,12 +560,15 @@ int main(int argc, char **argv)// 노드 메인 함수
 	
 	while (ros::ok())
 	{	
-		ROS_INFO("size %d",rontroller.GetNext().size());
-		ROS_INFO("Waiting for PPDL result");
+		//ROS_INFO("size %d",rontroller.GetNext().size());
+		//ROS_INFO("Waiting for PPDL result");
 		if(rontroller.GetNext().size() != 0){
 			ROS_INFO("Next is not empty\n");
 			//rontroller.simulation();
-			rontroller.control();
+			rontroller.TurnLeft();
+			rontroller.TurnLeft();
+			rontroller.TurnLeft();
+			//rontroller.control();
 			return 0;
   		}
 	  	ros::spinOnce();  
