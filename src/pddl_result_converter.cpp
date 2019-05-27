@@ -83,11 +83,15 @@ vector <pair<string, string> > PddlResultConverter::getNextMove(void){
 	return next_move;
 }
 
-/*
+
 vector <pair<string, pair<string, string> > >  PddlResultConverter::getChunkComponents(void){
-	return chunk_componentsn;
+	return chunk_components;
 }
-*/
+
+PddlResultConverter::~PddlResultConverter(){
+	ROS_INFO("PddlResultConverter destructor");
+}
+
 
 int main(void){
 	ROS_INFO("pddl_result_converter");

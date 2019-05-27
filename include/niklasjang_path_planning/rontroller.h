@@ -5,9 +5,10 @@
 #include <ros/ros.h>
 #include <time.h>
 #include <geometry_msgs/Twist.h>
-
+#include <vector>
 #include "niklasjang_path_planning/roomba.h"
 #include "niklasjang_path_planning/pddl_result_converter.h"
+using namespace std;
 
 class Rontroller{
 private :
@@ -27,11 +28,10 @@ public:
 	void turnLeft(void);
 	void turnRight(void);
 	void stop(void);
-	void simulation(void);
 	int checkOrientation(int);
-	void setPathPub(void);
-	void run(void);
+	void setPathPub(string);
 	PddlResultConverter getConverter(void);
+	void run(void);
 };
 
 #endif
