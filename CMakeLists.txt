@@ -34,26 +34,13 @@ include_directories(
 	include
 )
 
-## roomba 노드에 대한 빌드 옵션이다.
-add_executable(roomba src/roomba.cpp)
-add_dependencies(roomba ${${PROJECT_NAME}_EXPORTED_TARGETS}
-${catkin_EXPORTED_TARGETS})
-target_link_libraries(roomba ${catkin_LIBRARIES})
-
-# pddl_result_converter 노드에 대한 빌드 옵션이다.
-add_executable(pddl_result_converter src/pddl_result_converter.cpp)
-add_dependencies(pddl_result_converter ${${PROJECT_NAME}_EXPORTED_TARGETS}
-${catkin_EXPORTED_TARGETS})
-target_link_libraries(pddl_result_converter ${catkin_LIBRARIES})
-
-## rontroller 노드에 대한 빌드 옵션이다.
-add_executable(rontroller src/rontroller.cpp)
-add_dependencies(rontroller ${${PROJECT_NAME}_EXPORTED_TARGETS}
-${catkin_EXPORTED_TARGETS})
-target_link_libraries(rontroller ${catkin_LIBRARIES})
 
 ## roomba_pddl_driver 노드에 대한 빌드 옵션이다.
-add_executable(roomba_pddl_driver src/roomba_pddl_driver.cpp)
+add_executable(roomba_pddl_driver 
+src/roomba_pddl_driver.cpp 
+src/roomba.cpp 
+src/pddl_result_converter.cpp 
+src/rontroller.cpp)
 add_dependencies(roomba_pddl_driver ${${PROJECT_NAME}_EXPORTED_TARGETS}
 ${catkin_EXPORTED_TARGETS})
 target_link_libraries(roomba_pddl_driver ${catkin_LIBRARIES})

@@ -247,11 +247,12 @@ int Rontroller::checkOrientation(int haveToMoveIndex){
 	return converter;
 }
 */
+Rontroller::Rontroller(void){
+	ROS_INFO("Rontroller constructor");
+}
+	
+
 Rontroller::~Rontroller(void){
 	ROS_INFO("Rontroller detructor");
 }
-
-int main (void){
-	ROS_INFO("Rontroller main");
-	return 0;
-}
+	

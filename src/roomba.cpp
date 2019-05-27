@@ -15,6 +15,10 @@ Roomba::Roomba(void){
 	}
 }
 
+Roomba::~Roomba(void){
+	ROS_INFO("roomba destructor");
+}
+
 
 int Roomba::checkOrientation(int haveToMoveIndex){
 	//Check current orientation
@@ -185,10 +189,4 @@ double Roomba::getDestY(int index){
 }
 double Roomba::getYaw(int index){
 	return yaw[index];
-}
-
-
-int main (void){
-	ROS_INFO("Roomba main");
-	return 0;
 }

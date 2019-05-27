@@ -92,8 +92,3 @@ PddlResultConverter::~PddlResultConverter(){
 	ROS_INFO("PddlResultConverter destructor");
 }
 
-
-int main(void){
-	ROS_INFO("pddl_result_converter");
-	return 0;
-}
