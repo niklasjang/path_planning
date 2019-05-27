@@ -207,6 +207,7 @@ public:
 	}
 
 	void TurnLeft(void){
+		ROS_INFO("Doen Done!");
 		SetMsg(0.0, -2.2);
 		RollRoll(1.5);
 		Stop();

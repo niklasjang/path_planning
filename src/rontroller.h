@@ -1,10 +1,8 @@
 #ifndef __RONTROLLER_H__
 #define __RONTROLLER_H__
 
-#include <iostream>
-using namespace std;
-#include "Roomba.h"
-#include "Rontroller.h"
+#include "roomba.h"
+#include "rontroller.h"
 
 class Rontroller{
 
@@ -13,6 +11,7 @@ private :
 	geometry_msgs::Twist twist;
 	ros::NodeHandle nh;            // ROS 시스템과 통신을 위한 노드 핸들 선언
 	Roomba roomba;
+	PddlResultConverter converter;
 	int nextMoveRoombaIndex;	   // 1~8
 public:
 	Rontroller();

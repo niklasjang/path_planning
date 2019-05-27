@@ -4,7 +4,7 @@ project(niklasjang_path_planning)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-## 캐킨 빌드를 할 때 요구되는 구성요소 패키지이다.
+## 캐킨 빌드를 할 때 요구되는 구성요소 패키지로키지이다.
 ## 의존성 패키지로 message_generation, std_msgs, roscpp이며 이 패키지들이 존재하지 않으면 빌드 도중에 에러가 난다.
 find_package(catkin REQUIRED COMPONENTS
   message_generation
