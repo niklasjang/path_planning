@@ -10,7 +10,7 @@ int main(int argc, char **argv)// 노드 메인 함수
 	Rontroller rontroller;
 	rontroller.initialize(); //Subscribe pddl_result from server and then split to next instruction vector
 	ros::Rate loop_rate(10); // subscriber는 메시지가 오는 즉시 callback을 요청하고 바로 그 다음 메시지를 기다립니다. 
-	/*
+	
 	while (ros::ok())
 	{	
 		//ROS_INFO("size %d",rontroller.GetNext().size());

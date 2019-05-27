@@ -243,10 +243,10 @@ int Rontroller::checkOrientation(int haveToMoveIndex){
 }
 
 
-/*PddlResultConverter Rontroller::getConverter(void){
+PddlResultConverter Rontroller::getConverter(void){
 	return converter;
 }
-*/
+
 Rontroller::Rontroller(void){
 	ROS_INFO("Rontroller constructor");
 }
