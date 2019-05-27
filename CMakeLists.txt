@@ -14,35 +14,58 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## 메시지 선언: MsgTutorial.msg
-add_message_files(FILES MsgTutorial.msg)
+#add_message_files(FILES MsgTutorial.msg)
 
 ## 의존하는 메시지를 설정하는 옵션이다.
 ## std_msgs가 설치되어 있지 않다면 빌드 도중에 에러가 난다.
-generate_messages(DEPENDENCIES 
-roscpp
-)
+#generate_messages(DEPENDENCIES 
+#roscpp
+#)
 
 ## 캐킨 패키지 옵션으로 라이브러리, 캐킨 빌드 의존성, 시스템 의존 패키지를 기술한다.
 catkin_package(
-LIBRARIES niklasjang_path_planning
-CATKIN_DEPENDS std_msgs roscpp geometry
+	LIBRARIES niklasjang_path_planning
+	CATKIN_DEPENDS std_msgs roscpp geometry
 )
 
 ## 인클루드 디렉터리를 설정한다.
-include_directories(${catkin_INCLUDE_DIRS})
+include_directories(
+	${catkin_INCLUDE_DIRS}
+	include
+)
+
+
+## roomba 노드에 대한 빌드 옵션이다.
+add_executable(roomba src/roomba.cpp)
+add_dependencies(roomba ${${PROJECT_NAME}_EXPORTED_TARGETS}
+${catkin_EXPORTED_TARGETS})
+target_link_libraries(roomba ${catkin_LIBRARIES})
+
+## rontroller 노드에 대한 빌드 옵션이다.
+add_executable(rontroller src/rontroller.cpp)
+add_dependencies(rontroller ${${PROJECT_NAME}_EXPORTED_TARGETS}
+${catkin_EXPORTED_TARGETS})
+target_link_libraries(rontroller ${catkin_LIBRARIES})
+
+# pddl_result_converter 노드에 대한 빌드 옵션이다.
+add_executable(pddl_result_converter src/pddl_result_converter.cpp)
+add_dependencies(pddl_result_converter ${${PROJECT_NAME}_EXPORTED_TARGETS}
+${catkin_EXPORTED_TARGETS})
+target_link_libraries(pddl_result_converter ${catkin_LIBRARIES})
+
 
 ## path_publisher 노드에 대한 빌드 옵션이다.
 ## 실행 파일, 타깃 링크 라이브러리, 추가 의존성 등을 설정한다.
-add_executable(path_publisher src/path_publisher.cpp)
-add_dependencies(path_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS}
-${catkin_EXPORTED_TARGETS})
-target_link_libraries(path_publisher ${catkin_LIBRARIES})
+#add_executable(path_publisher src/path_publisher.cpp)
+#add_dependencies(path_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS}
+#${catkin_EXPORTED_TARGETS})
+#target_link_libraries(path_publisher ${catkin_LIBRARIES})
 
 ## path_subscriber 노드에 대한 빌드 옵션이다.
-add_executable(path_subscriber src/path_subscriber.cpp)
-add_dependencies(path_subscriber ${${PROJECT_NAME}_EXPORTED_TARGETS}
-${catkin_EXPORTED_TARGETS})
-target_link_libraries(path_subscriber ${catkin_LIBRARIES})
+#add_executable(path_subscriber src/path_subscriber.cpp)
+#add_dependencies(path_subscriber ${${PROJECT_NAME}_EXPORTED_TARGETS}
+#${catkin_EXPORTED_TARGETS})
+#target_link_libraries(path_subscriber ${catkin_LIBRARIES})
 
 
 ####################################################
@@ -154,10 +177,10 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
+#include_directories(
 # include
-  ${catkin_INCLUDE_DIRS}
-)
+#  ${catkin_INCLUDE_DIRS}
+#)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

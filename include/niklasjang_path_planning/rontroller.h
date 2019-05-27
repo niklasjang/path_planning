@@ -1,9 +1,8 @@
 #ifndef __RONTROLLER_H__
 #define __RONTROLLER_H__
 
-
-#include "niklasjang_path_planning/roomba.h"
-#include "niklasjang_path_planning/pddl_result_converter.h"
+#include "roomba.h"
+#include "rontroller.h"
 
 class Rontroller{
 
@@ -16,7 +15,6 @@ private :
 	int nextMoveRoombaIndex;	   // 1~8
 public:
 	Rontroller();
-	~Rontroller();
 	void initialize(void);
 	void setTwist(double _x, double _z);
 	void rollRoll(double spen);
@@ -28,6 +26,7 @@ public:
 	void run(void);
 	void simulation(void);
 	int checkOrientation(int);
+	~Rontroller();
 };
 
 #endif

@@ -1,9 +1,14 @@
 #ifndef __PDDL_RESULT_CONVERTER_H__
 #define __PDDL_RESULT_CONVERTER_H__
 
+#include <iostream>
+using namespace std;
+#include "ros/ros.h"
+#include <stdlib.h> 
 #include "std_msgs/String.h"
 #include <string>
 #include <vector>
+
 
 class PddlResultConverter{
 private:
@@ -14,7 +19,6 @@ private:
 	vector <pair<string, string> > next_move;
 public:
 	PddlResultConverter();
-	~PddlResultConverter();
 	void chunkPddlResult(void);
 	void splitByWhiteSpace(void);
 	void splitByDelimiter(string);
@@ -22,8 +26,6 @@ public:
 	//vector <pair<string, pair<string, string> > >getChunkComponents(void);
 	vector <pair<string, string> > GetNextMove(void);
 	void pddlResultCallback(const std_msgs::StringConstPtr& _pddl_result);
+	~PddlResultConverter();
 
-};
-
-#endif
-
+}

@@ -1,4 +1,4 @@
-#include "pddl_result_converter.h"
+#include "niklasjang_path_planning/pddl_result_converter.h"
 
 PddlResultConverter::PddlResultConverter(){
 	pddl_subscriber = nh.subscribe("/result", 1000, &RONTROLLER::pddlResultCallback, this);

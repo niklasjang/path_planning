@@ -1,8 +1,7 @@
 #include <iostream>
-
-#include "roomba.h"
-#include "rontroller.h"
-#include "pddl_result_converter.h"
+#include "ros/ros.h"
+using namespace std;
+#include "niklasjang_path_planning/rontroller.h"
 
 int main(int argc, char **argv)// 노드 메인 함수
 {	

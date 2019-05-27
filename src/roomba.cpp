@@ -1,12 +1,12 @@
-#include "Roomba.h"
+#include "niklasjang_path_planning/roomba.h"
 
 /**
 * Settings for subscribe model state
 */
 Roomba::Roomba(){
 	running_index = -1;
-	roomba_state_subscriber = state_nh.subscribe("/gazebo/model_states", 1000, &ROOMBA::simStateCallback, this);
-	roomba_state_subscriber = state_nh.subscribe("/tf", 1000, &ROOMBA::roombaStateCallback, this);
+	roomba_state_subscriber = state_nh.subscribe("/gazebo/model_states", 1000, &Roomba::simStateCallback, this);
+	roomba_state_subscriber = state_nh.subscribe("/tf", 1000, &Roomba::realStateCallback, this);
 	//Set 8 roomba's initial positions as (0.0, 0.0)
 	for(int i=0; i<HOW_MANY_ROOMBAS; i++){                    
 		curr.push_back(make_pair(0.0,0.0));
@@ -27,7 +27,7 @@ int Roomba::checkOrientation(int haveToMoveIndex){
 			|
 			2	   //else : return -1;
 	*/
-	double yaw = roomba.GetYaw(haveToMoveIndex);
+	double yaw = getYaw(haveToMoveIndex);
 	if (-0.5 <= yaw && yaw <= 0.5 ){
 		//Looking Down
 		return 2;
@@ -72,78 +72,78 @@ void Roomba::simStateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
 	for(int i=1; i<9; i++){
 		//ROS_INFO(msg->name[i].c_str());
 		if(msg->name[i] == "create1"){
-			SetCurrX(0, msg->pose[i].position.x);
-			SetCurrX(0, msg->pose[i].position.y);
+			setCurrX(0, msg->pose[i].position.x);
+			setCurrX(0, msg->pose[i].position.y);
 			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
 				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
 			tf2::Matrix3x3 m(q);
 			double roll, pitch, yaw;
   			m.getRPY(roll, pitch, yaw);
-			SetYaw(0, yaw);
+			setYaw(0, yaw);
 			//ROS_INFO("yaw : %f", yaw);
 		}else if(msg->name[i] == "create2"){
-			SetCurrX(1, msg->pose[i].position.x);
-			SetCurrX(1, msg->pose[i].position.y);
+			setCurrX(1, msg->pose[i].position.x);
+			setCurrX(1, msg->pose[i].position.y);
 			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
 				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
 			tf2::Matrix3x3 m(q);
 			double roll, pitch, yaw;
   			m.getRPY(roll, pitch, yaw);
-			SetYaw(1, yaw);
+			setYaw(1, yaw);
 		}else if(msg->name[i] == "create3"){
-			SetCurrX(2, msg->pose[i].position.x);
-			SetCurrX(2, msg->pose[i].position.y);
+			setCurrX(2, msg->pose[i].position.x);
+			setCurrX(2, msg->pose[i].position.y);
 			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
 				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
 			tf2::Matrix3x3 m(q);
 			double roll, pitch, yaw;
   			m.getRPY(roll, pitch, yaw);
-			SetYaw(2, yaw);
+			setYaw(2, yaw);
 		}else if(msg->name[i] == "create4"){
-			SetCurrX(3, msg->pose[i].position.x);
-			SetCurrX(3, msg->pose[i].position.y);
+			setCurrX(3, msg->pose[i].position.x);
+			setCurrX(3, msg->pose[i].position.y);
 			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
 				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
 			tf2::Matrix3x3 m(q);
 			double roll, pitch, yaw;
   			m.getRPY(roll, pitch, yaw);
-			SetYaw(3, yaw);
+			setYaw(3, yaw);
 		}else if(msg->name[i] == "create5"){
-			SetCurrX(4, msg->pose[i].position.x);
-			SetCurrX(4, msg->pose[i].position.y);
+			setCurrX(4, msg->pose[i].position.x);
+			setCurrX(4, msg->pose[i].position.y);
 			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
 				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
 			tf2::Matrix3x3 m(q);
 			double roll, pitch, yaw;
   			m.getRPY(roll, pitch, yaw);
-			SetYaw(4, yaw);
+			setYaw(4, yaw);
 		}else if(msg->name[i] == "create6"){
-			SetCurrX(5, msg->pose[i].position.x);
-			SetCurrX(5, msg->pose[i].position.y);
+			setCurrX(5, msg->pose[i].position.x);
+			setCurrX(5, msg->pose[i].position.y);
 			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
 				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
 			tf2::Matrix3x3 m(q);
 			double roll, pitch, yaw;
   			m.getRPY(roll, pitch, yaw);
-			SetYaw(5, yaw);
+			setYaw(5, yaw);
 		}else if(msg->name[i] == "create7"){
-			SetCurrX(6, msg->pose[i].position.x);
-			SetCurrX(6, msg->pose[i].position.y);
+			setCurrX(6, msg->pose[i].position.x);
+			setCurrX(6, msg->pose[i].position.y);
 			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
 				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
 			tf2::Matrix3x3 m(q);
 			double roll, pitch, yaw;
   			m.getRPY(roll, pitch, yaw);
-			SetYaw(6, yaw);
+			setYaw(6, yaw);
 		}else if(msg->name[i] == "create8"){
-			SetCurrX(7, msg->pose[i].position.x);
-			SetCurrX(7, msg->pose[i].position.y);
+			setCurrX(7, msg->pose[i].position.x);
+			setCurrX(7, msg->pose[i].position.y);
 			tf2::Quaternion q(msg->pose[i].orientation.x, msg->pose[i].orientation.y,
 				msg->pose[i].orientation.z, msg->pose[i].orientation.w);
 			tf2::Matrix3x3 m(q);
 			double roll, pitch, yaw;
   			m.getRPY(roll, pitch, yaw);
-			SetYaw(7, yaw);
+			setYaw(7, yaw);
 		}else{
 			ROS_INFO("i is %d", i);
 			ROS_INFO("Sth wrong!");
@@ -185,7 +185,4 @@ double Roomba::getDestY(int index){
 }
 double Roomba::getYaw(int index){
 	return yaw[index];
-}
-Roomba::~Roomba(){
-	//empty
 }

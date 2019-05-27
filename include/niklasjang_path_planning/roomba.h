@@ -1,11 +1,15 @@
 #ifndef __ROOMBA_H__
 #define __ROOMBA_H__
 
+#include <iostream>
+using namespace std;
+#include "ros/ros.h" //ros basic header file
+#include <stdlib.h> 
 #include "gazebo_msgs/ModelStates.h"
+//tf2 matrix
 #include <tf2_msgs/TFMessage.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
-
 #define HOW_MANY_ROOMBAS 8    // Upto 8
 
 /**
@@ -24,7 +28,6 @@ private:
 	int running_index;					 //represent which roomba is running for this time quantom.
 public:
 	Roomba();
-	~Roomba();
 	void setRunningIndex(int index);
 	void setCurrX(int index, double x);
 	void setCurrY(int index, double x);
@@ -39,6 +42,6 @@ public:
 	int checkOrientation(int haveToMoveIndex){ //TODO : no wanbaeck
 	void simStateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
 	void realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
+	~Roomba();
 };
-
 #endif
