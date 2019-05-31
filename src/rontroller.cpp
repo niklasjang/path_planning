@@ -3,6 +3,7 @@
 * Settings 
 */
 void Rontroller::initialize(void){
+	ROS_INFO("Rontroller constructor");
 	// 루프 주기를 설정한다. "10" 이라는 것은 10Hz를 말하는 것으로 0.1초 간격으로 반복된다
 	path_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
 	nextMoveRoombaIndex = 0;

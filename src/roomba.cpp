@@ -4,6 +4,7 @@
 * Settings for subscribe model state
 */
 Roomba::Roomba(void){
+	ROS_INFO("Roomba constructor");
 	running_index = -1;
 	roomba_state_subscriber = state_nh.subscribe("/gazebo/model_states", 1000, &Roomba::simStateCallback, this);
 	roomba_state_subscriber = state_nh.subscribe("/tf", 1000, &Roomba::realStateCallback, this);
@@ -190,3 +191,4 @@ double Roomba::getDestY(int index){
 double Roomba::getYaw(int index){
 	return yaw[index];
 }
+

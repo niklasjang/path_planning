@@ -6,15 +6,15 @@ using namespace std;
 int main(int argc, char **argv)// 노드 메인 함수
 {	
 	ros::init(argc, argv, "roomba_pddl_driver"); // 노드명 초기화
-	
+
 	Rontroller rontroller;
 	rontroller.initialize(); //Subscribe pddl_result from server and then split to next instruction vector
-	ros::Rate loop_rate(10); // subscriber는 메시지가 오는 즉시 callback을 요청하고 바로 그 다음 메시지를 기다립니다. 
+	ros::Rate loop_rate(1); // subscriber는 메시지가 오는 즉시 callback을 요청하고 바로 그 다음 메시지를 기다립니다. 
 	
 	while (ros::ok())
 	{	
 		//ROS_INFO("size %d",rontroller.GetNext().size());
-		//ROS_INFO("Waiting for PPDL result");
+		ROS_INFO("Waiting for PPDL result");
 		if(rontroller.getConverter().getNextMove().size()!= 0){
 			ROS_INFO("Next is not empty\n");
 			//rontroller.simulation();
@@ -25,8 +25,7 @@ int main(int argc, char **argv)// 노드 메인 함수
 			return 0;
   		}
 	  	ros::spinOnce();  
-	  	loop_rate.sleep();
+	  	loop_rate.sleep(); //반복 구독을 수행하고 callback을 지속적으로 요청합니다.*/
 	}
-	ros::spin(); // ros::spin() 함수를 이용하여 반복 구독을 수행하고 callback을 지속적으로 요청합니다.*/
 	return 0;
 }

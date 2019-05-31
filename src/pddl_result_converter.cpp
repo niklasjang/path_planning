@@ -1,14 +1,14 @@
 #include "niklasjang_path_planning/pddl_result_converter.h"
-
 PddlResultConverter::PddlResultConverter(){
+	ROS_INFO("PddlResultConverter constructor");
 	pddl_subscriber = nh.subscribe("/result", 1000, &PddlResultConverter::pddlResultCallback, this);
 }
 
 void PddlResultConverter::pddlResultCallback(const std_msgs::StringConstPtr& _pddl_result)
 {	
-	//ROS_INFO("MSGCALLBACK");
+	ROS_INFO("CATCH PDDL RESULT ");
 	pddl_result = _pddl_result->data;
-	//ROS_INFO("Subscribe data : %s", pddl_result.c_str());
+	ROS_INFO("Subscribe data : %s", pddl_result.c_str());
 	chunkPddlResult();
 }
 
