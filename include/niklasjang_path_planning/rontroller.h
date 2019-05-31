@@ -11,12 +11,12 @@
 using namespace std;
 
 
-#define GO_STRAIGHT_X 0.7
-#define GO_DURATION 5.0
+#define GO_STRAIGHT_X 0.3
+#define GO_DURATION 1.2
 
 #define TURN_LEFT_Z -2.2
-#define TURN_RIGHT_Z 2.2
-#define TURN_DURATION 1.5
+#define TURN_RIGHT_Z +2.2
+#define TURN_DURATION 0.7
 
 #define STOP_DURATION 0.2
 #define SLEEP_DURATION 2.0
