@@ -35,26 +35,29 @@ void Rontroller::rollRoll(double spen){
 }
 
 void Rontroller::goStraight(void){
-	setTwist(0.7, 0.0);
-	rollRoll(5);
+	ROS_INFO("*** GO STRAIGHT *** ");
+	setTwist(GO_STRAIGHT_X, 0.0);
+	rollRoll(GO_DURATION);
 	stop();
 }
 
 void Rontroller::turnLeft(void){
-	setTwist(0.0, -2.2);
-	rollRoll(1.5);
+	ROS_INFO(" *** TURN LEFT *** ");
+	setTwist(0.0, TURN_LEFT_Z);
+	rollRoll(TURN_DURATION);
 	stop();
 }
 
 void Rontroller::turnRight(void){
-	setTwist(0.0, +2.2);
-	rollRoll(1.5);
+	ROS_INFO("*** TURN RIGHT *** ");
+	setTwist(0.0, TURN_RIGHT_Z);
+	rollRoll(TURN_DURATION);
 	stop();
 }
 
 void Rontroller::stop(void){
 	setTwist(0.0, 0.0);
-	rollRoll(0.2);
+	rollRoll(STOP_DURATION);
 }
 
 
@@ -111,8 +114,11 @@ void Rontroller::run(void){
 			|
 			2	   //else : return -1;
 	*/
-	/*
-	int curr_orientation = roomba.checkOrientation(nextMoveRoombaIndex); //default = 2
+	
+
+	//nextMoveRoombaIndex default = 0
+	//checkOrientation default = 2
+	int curr_orientation = roomba.checkOrientation(nextMoveRoombaIndex);
 
 	ROS_INFO("curr_orientation %d", curr_orientation);
 	vector <pair<string, string> > next_move= converter.getNextMove();
@@ -125,17 +131,17 @@ void Rontroller::run(void){
 				goStraight();
 			}else if (curr_orientation == 2){
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else if (curr_orientation == 3){
 				turnRight();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else if (curr_orientation == 4){
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else{
 				ROS_INFO("next_move move-up Sth Wrong!");
@@ -144,19 +150,19 @@ void Rontroller::run(void){
 		}else if (next_move[i].second == "move-down"){
 			if (curr_orientation == 1){
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else if (curr_orientation == 2){
 				goStraight();
 			}else if (curr_orientation == 3){
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else if (curr_orientation == 4){
 				turnRight();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else{
 				ROS_INFO("next_move move-down Sth Wrong!");
@@ -165,19 +171,19 @@ void Rontroller::run(void){
 		}else if (next_move[i].second == "move-left"){
 			if (curr_orientation == 1){
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else if (curr_orientation == 2){
 				turnRight();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else if (curr_orientation == 3){
 				goStraight();
 			}else if (curr_orientation == 4){
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else{
 				ROS_INFO("next_move move-left Sth Wrong!");
@@ -186,17 +192,17 @@ void Rontroller::run(void){
 		}else if (next_move[i].second == "move-right"){
 			if (curr_orientation == 1){
 				turnRight();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else if (curr_orientation == 2){
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else if (curr_orientation == 3){
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				turnLeft();
-				ros::Duration(2.0).sleep();
+				ros::Duration(SLEEP_DURATION).sleep();
 				goStraight();
 			}else if (curr_orientation == 4){
 				goStraight();
@@ -207,12 +213,11 @@ void Rontroller::run(void){
 			ROS_INFO("next_move Sth Wrong!");
 		}
 	}
-	*/
+	
 	ROS_INFO("control done");
 	
 }
 
-//void Rontroller::simulation(void);
 int Rontroller::checkOrientation(int haveToMoveIndex){
 	//Check current orientation
 	/*

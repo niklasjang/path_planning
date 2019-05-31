@@ -18,14 +18,16 @@ int main(int argc, char **argv)// 노드 메인 함수
 		if(rontroller.getConverter().getNextMove().size()!= 0){
 			ROS_INFO("Next is not empty\n");
 			//rontroller.simulation();
-			rontroller.turnLeft();
-			rontroller.turnLeft();
-			rontroller.turnLeft();
-			//rontroller.control();
+			//rontroller.turnLeft();
+			//rontroller.turnLeft();
+			//rontroller.turnLeft();
+			rontroller.run();
 			return 0;
   		}
 	  	ros::spinOnce();  
 	  	loop_rate.sleep(); //반복 구독을 수행하고 callback을 지속적으로 요청합니다.*/
 	}
+
+
 	return 0;
 }
