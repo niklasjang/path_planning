@@ -7,7 +7,7 @@
 #include <tf2_msgs/TFMessage.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
-#define HOW_MANY_ROOMBAS 8    // Upto 8
+#define HOW_MANY_ROOMBAS 6    // Upto 6
 using namespace std;
 
 /**
@@ -38,8 +38,14 @@ public:
 	double getDestX(int index);
 	double getDestY(int index);
 	double getYaw(int index);
-	void simStateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
-	void realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
+	//void simStateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
+	//void realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
+	void R1StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
+	/*void R2StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
+	void R3StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
+	void R4StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
+	void R5StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
+	void R6StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);*/
 	int checkOrientation(int haveToMoveIndex);
 };
 
