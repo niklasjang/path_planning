@@ -22,7 +22,7 @@ int main(int argc, char **argv)// 노드 메인 함수
 			//rontroller.turnLeft();
 			//rontroller.turnLeft();
 			rontroller.run();
-			return 0;
+			rontroller.reset();
   		}
 	  	ros::spinOnce();  
 	  	loop_rate.sleep(); //반복 구독을 수행하고 callback을 지속적으로 요청합니다.*/

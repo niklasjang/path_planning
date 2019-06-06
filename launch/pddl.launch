@@ -1,0 +1,24 @@
+<launch>
+
+	<group ns="r1">
+		<node pkg="niklasjang_path_planning" type="roomba_pddl_driver" name="roomba_pddl_driver"/>
+	</group>
+	<group ns="r2">
+		<node pkg="niklasjang_path_planning" type="roomba_pddl_driver" name="roomba_pddl_driver"/>
+	</group>
+	<group ns="r3">
+		<node pkg="niklasjang_path_planning" type="roomba_pddl_driver" name="roomba_pddl_driver"/>
+	</group>
+	<group ns="r4">
+		<node pkg="niklasjang_path_planning" type="roomba_pddl_driver" name="roomba_pddl_driver"/>
+	</group>
+	<group ns="r5">
+		<node pkg="niklasjang_path_planning" type="roomba_pddl_driver" name="roomba_pddl_driver"/>
+	</group>
+	<group ns="r6">
+		<node pkg="niklasjang_path_planning" type="roomba_pddl_driver" name="roomba_pddl_driver"/>
+	</group>
+
+	
+</launch>
+

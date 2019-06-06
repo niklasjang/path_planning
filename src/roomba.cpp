@@ -57,14 +57,22 @@ int Roomba::checkOrientation(int haveToMoveIndex){
 * From x,y,z,w calculate yaw.
 */
 void Roomba::realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg){
+	double roll, pitch, yaw;
+	double roll2, pitch2, yaw2;
 	//Left wheel : msg[0].transforms.transform.rotation.x
 	//Right wheel : msg[1].transforms.transform.rotation.x
 	geometry_msgs::Quaternion rot = msg->transforms[0].transform.rotation;
 	tf2::Quaternion q(rot.x, rot.y, rot.z, rot.w);
 	tf2::Matrix3x3 m(q);
-	double roll, pitch, yaw;
   	m.getRPY(roll, pitch, yaw);
-  	ROS_INFO("Current yaw is %f\n", yaw);
+  	ROS_INFO("Left wheel yaw is %lf\n", yaw);
+/*
+	geometry_msgs::Quaternion rot2 = msg->transforms[1].transform.rotation;
+	tf2::Quaternion q2(rot2.x, rot2.y, rot2.z, rot2.w);
+	tf2::Matrix3x3 m(q2);
+  	m.getRPY(roll2, pitch2, yaw2);
+  	ROS_INFO("Right wheel yaw is %lf\n", yaw2);
+*/	
 }
 
 /**

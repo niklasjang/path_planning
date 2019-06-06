@@ -44,7 +44,7 @@ public:
 	void setPathPub(string);
 	PddlResultConverter getConverter(void);
 	void run(void);
-	
+	void reset(void);
 };
 
 #endif

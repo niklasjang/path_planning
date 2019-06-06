@@ -88,6 +88,13 @@ vector <pair<string, pair<string, string> > >  PddlResultConverter::getChunkComp
 	return chunk_components;
 }
 
+void PddlResultConverter::reset(){
+	ROS_INFO("");
+	chunk_list.clear();          //instruction string vector
+	chunk_components.clear(); // <roomba_number, x_pos, y_pos>, This is not used
+	next_move.clear();
+}
+
 PddlResultConverter::~PddlResultConverter(){
 	ROS_INFO("PddlResultConverter destructor");
 }

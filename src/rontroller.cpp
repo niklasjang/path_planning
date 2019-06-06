@@ -214,8 +214,14 @@ void Rontroller::run(void){
 		}
 	}
 	
+	
+
 	ROS_INFO("control done");
 	
+}
+
+void Rontroller::reset(void){
+	converter.reset();
 }
 
 int Rontroller::checkOrientation(int haveToMoveIndex){

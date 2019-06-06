@@ -24,7 +24,7 @@ public:
 	vector <pair<string, pair<string, string> > >getChunkComponents(void);
 	vector <pair<string, string> > getNextMove(void);
 	void pddlResultCallback(const std_msgs::StringConstPtr& _pddl_result);
-
+	void reset(void);
 };
 
 #endif
