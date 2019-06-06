@@ -5,7 +5,13 @@
 void Rontroller::initialize(void){
 	ROS_INFO("Rontroller constructor");
 	// 루프 주기를 설정한다. "10" 이라는 것은 10Hz를 말하는 것으로 0.1초 간격으로 반복된다
-	path_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
+	path_pub[0] = nh.advertise<geometry_msgs::Twist>("/r0/cmd_vel", 1000);
+	path_pub[1] = nh.advertise<geometry_msgs::Twist>("/r1/cmd_vel", 1000);
+	path_pub[2] = nh.advertise<geometry_msgs::Twist>("/r2/cmd_vel", 1000);
+	path_pub[3] = nh.advertise<geometry_msgs::Twist>("/r3/cmd_vel", 1000);
+	path_pub[4] = nh.advertise<geometry_msgs::Twist>("/r4/cmd_vel", 1000);
+	path_pub[5] = nh.advertise<geometry_msgs::Twist>("/r5/cmd_vel", 1000);
+	path_pub[6] = nh.advertise<geometry_msgs::Twist>("/r6/cmd_vel", 1000);
 	nextMoveRoombaIndex = 0;
 
 }
@@ -14,7 +20,7 @@ void Rontroller::setTwist(double _x, double _z){
 	twist.angular.z = _z;
 }
 
-void Rontroller::rollRoll(double spen){
+void Rontroller::rollRoll(ros::Publisher path_pub, double spen){
 	ros::Time beginTime = ros::Time::now();
 	double begin = beginTime.toSec();
 	ros::Duration secondsIWantToSendMessagesFor = ros::Duration(spen); 
@@ -34,64 +40,56 @@ void Rontroller::rollRoll(double spen){
 	}
 }
 
-void Rontroller::goStraight(void){
+void Rontroller::goStraight(ros::Publisher path_pub){
 	ROS_INFO("*** GO STRAIGHT *** ");
 	setTwist(GO_STRAIGHT_X, 0.0);
-	rollRoll(GO_DURATION);
-	stop();
+	rollRoll(path_pub, GO_DURATION);
+	stop(path_pub);
 }
 
-void Rontroller::turnLeft(void){
+void Rontroller::turnLeft(ros::Publisher path_pub){
 	ROS_INFO(" *** TURN LEFT *** ");
 	setTwist(0.0, TURN_LEFT_Z);
-	rollRoll(TURN_DURATION);
-	stop();
+	rollRoll(path_pub, TURN_DURATION);
+	stop(path_pub);
 }
 
-void Rontroller::turnRight(void){
+void Rontroller::turnRight(ros::Publisher path_pub){
 	ROS_INFO("*** TURN RIGHT *** ");
 	setTwist(0.0, TURN_RIGHT_Z);
-	rollRoll(TURN_DURATION);
-	stop();
+	rollRoll(path_pub, TURN_DURATION);
+	stop(path_pub);
 }
 
-void Rontroller::stop(void){
+void Rontroller::stop(ros::Publisher path_pub){
 	setTwist(0.0, 0.0);
-	rollRoll(STOP_DURATION);
+	rollRoll(path_pub, STOP_DURATION);
 }
 
-
+/*
 void Rontroller::setPathPub(string target){
-	path_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
-	/*if (target == "t1"){
-		path_pub = nh.advertise<geometry_msgs::Twist>("/robot1/cmd_vel", 1000);
+	if (target == "#target1"){
+		path_pub = nh.advertise<geometry_msgs::Twist>("/r1/cmd_vel", 1000);
 		nextMoveRoombaIndex = 1;
-	}else if (target == "t2"){
-		path_pub = nh.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
+	}else if (target == "#target2"){
+		path_pub = nh.advertise<geometry_msgs::Twist>("/r2/cmd_vel", 1000);
 		nextMoveRoombaIndex = 2;
-	}else if (target == "t3"){
-		path_pub = nh.advertise<geometry_msgs::Twist>("/robot3/cmd_vel", 1000);
+	}else if (target == "#target3"){
+		path_pub = nh.advertise<geometry_msgs::Twist>("/r3/cmd_vel", 1000);
 		nextMoveRoombaIndex = 3;
-	}else if (target == "t4"){
-		path_pub = nh.advertise<geometry_msgs::Twist>("/robot4/cmd_vel", 1000);
+	}else if (target == "#target4"){
+		path_pub = nh.advertise<geometry_msgs::Twist>("/r4/cmd_vel", 1000);
 		nextMoveRoombaIndex = 4;
-	}else if (target == "t5"){
-		path_pub = nh.advertise<geometry_msgs::Twist>("/robot5/cmd_vel", 1000);
+	}else if (target == "#target5"){
+		path_pub = nh.advertise<geometry_msgs::Twist>("/r5/cmd_vel", 1000);
 		nextMoveRoombaIndex = 5;
-	}else if (target == "t6"){
-		path_pub = nh.advertise<geometry_msgs::Twist>("/robot6/cmd_vel", 1000);
+	}else if (target == "#target6"){
+		path_pub = nh.advertise<geometry_msgs::Twist>("/r6/cmd_vel", 1000);
 		nextMoveRoombaIndex = 6;
-	}else if (target == "t7"){
-		path_pub = nh.advertise<geometry_msgs::Twist>("/robot7/cmd_vel", 1000);
-		nextMoveRoombaIndex = 7;
-	}else if (target == "t8"){
-		path_pub = nh.advertise<geometry_msgs::Twist>("/robot8/cmd_vel", 1000);
-		nextMoveRoombaIndex = 8;
 	}else{
 		ROS_INFO("nextMoveRoombaIndex is wrong!");
-	}*/
-	path_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
-}
+	}
+}*/
 
 void Rontroller::run(void){
 	ROS_INFO("Rontroller run");
@@ -107,10 +105,10 @@ void Rontroller::run(void){
 	(x1 y3) (x2 y3) (x3 y3)
 
 	Roomba::checkOrientation return value
-			1      //Looking Up : return 1;
+			0      //Looking Up : return 1;
 		   /|
 		  / |
-		3 --+-- 4
+		3 --+-- 1
 			|
 			2	   //else : return -1;
 	*/
@@ -124,88 +122,132 @@ void Rontroller::run(void){
 	vector <pair<string, string> > next_move= converter.getNextMove();
 	for(int i=0; i< next_move.size(); i++){
 
-		setPathPub(next_move[i].first);
+		string str_idx = next_move[i].first;
+		//setPathPub(str_idx);
+		 
+		//num_idx means which roomba will be move. std::stoi() does not work..
+		str_idx = str_idx.string::at(7);
+		int num_idx = 0;
 		
+		ros::Publisher pub;
+		if( str_idx == "1" ){
+			num_idx =1 ;
+			pub = path_pub[1];
+		}else if( str_idx == "2" ){
+			num_idx =2 ;
+			pub = path_pub[2];
+		}else if( str_idx == "3" ){
+			num_idx =3 ;
+			pub = path_pub[3];
+		}else if( str_idx == "4" ){
+			num_idx =4 ;
+			pub = path_pub[4];
+		}else if( str_idx == "5" ){
+			num_idx =5 ;
+			pub = path_pub[5];
+		}else if( str_idx == "6" ){
+			num_idx =6 ;
+			pub = path_pub[6];
+		}else{
+			ROS_INFO("num_idx error\n");
+		}
+
 		if (next_move[i].second == "move-up"){
-			if (curr_orientation == 1){
-				goStraight();
+			if (curr_orientation == 0){
+				goStraight(pub);
 			}else if (curr_orientation == 2){
-				turnLeft();
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				turnLeft();
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
+				goStraight(pub);
 			}else if (curr_orientation == 3){
-				turnRight();
+				roomba.updateOrientation(num_idx, 1);
+				turnRight(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
-			}else if (curr_orientation == 4){
-				turnLeft();
+				goStraight(pub);
+			}else if (curr_orientation == 1){
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
+				goStraight(pub);
 			}else{
 				ROS_INFO("next_move move-up Sth Wrong!");
 			}
 
 		}else if (next_move[i].second == "move-down"){
-			if (curr_orientation == 1){
-				turnLeft();
+			if (curr_orientation == 0){
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				turnLeft();
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
+				goStraight(pub);
 			}else if (curr_orientation == 2){
-				goStraight();
+				goStraight(pub);
 			}else if (curr_orientation == 3){
-				turnLeft();
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
-			}else if (curr_orientation == 4){
-				turnRight();
+				goStraight(pub);
+			}else if (curr_orientation == 1){
+				roomba.updateOrientation(num_idx, 1);
+				turnRight(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
+				goStraight(pub);
 			}else{
 				ROS_INFO("next_move move-down Sth Wrong!");
 			}
 
 		}else if (next_move[i].second == "move-left"){
-			if (curr_orientation == 1){
-				turnLeft();
+			if (curr_orientation == 0){
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
+				goStraight(pub);
 			}else if (curr_orientation == 2){
-				turnRight();
+				roomba.updateOrientation(num_idx, 1);
+				turnRight(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
+				goStraight(pub);
 			}else if (curr_orientation == 3){
-				goStraight();
-			}else if (curr_orientation == 4){
-				turnLeft();
+				goStraight(pub);
+			}else if (curr_orientation == 1){
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				turnLeft();
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
+				goStraight(pub);
 			}else{
 				ROS_INFO("next_move move-left Sth Wrong!");
 			}
 
 		}else if (next_move[i].second == "move-right"){
-			if (curr_orientation == 1){
-				turnRight();
+			if (curr_orientation == 0){
+				roomba.updateOrientation(num_idx, 1);
+				turnRight(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
+				goStraight(pub);
 			}else if (curr_orientation == 2){
-				turnLeft();
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
+				goStraight(pub);
 			}else if (curr_orientation == 3){
-				turnLeft();
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				turnLeft();
+				roomba.updateOrientation(num_idx, -1);
+				turnLeft(pub);
 				ros::Duration(SLEEP_DURATION).sleep();
-				goStraight();
-			}else if (curr_orientation == 4){
-				goStraight();
+				goStraight(pub);
+			}else if (curr_orientation == 1){
+				goStraight(pub);
 			}else{
 				ROS_INFO("next_move move-right Sth Wrong!");
 			}
@@ -222,36 +264,6 @@ void Rontroller::run(void){
 
 void Rontroller::reset(void){
 	converter.reset();
-}
-
-int Rontroller::checkOrientation(int haveToMoveIndex){
-	//Check current orientation
-	/*
-	return value
-			1      //Looking Up : return 1;
-		   /|
-		  / |
-		3 --+-- 4
-			|
-			2	   //else : return -1;
-	*/;
-	double yaw = 0;//roomba.getYaw(haveToMoveIndex);
-	if (-0.5 <= yaw && yaw <= 0.5 ){
-		//Looking Down
-		return 2;
-	}else if (1.0 <= yaw && yaw <= 2.0 ){
-		//Looking Right
-		return 4;
-	}else if (-2.0 <= yaw && yaw  <= -1.0 ){
-		//Looking Left
-		return 3;
-	}else if (-2.5 >= yaw || yaw >= 2.5 ){
-		//Looking Up
-		return 1;
-	}else{
-		ROS_INFO("Really Bad orientation. %f", yaw);
-		return -1;
-	}
 }
 
 

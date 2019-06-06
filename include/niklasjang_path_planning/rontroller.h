@@ -14,8 +14,8 @@ using namespace std;
 #define GO_STRAIGHT_X 0.3
 #define GO_DURATION 1.2
 
-#define TURN_LEFT_Z -2.2
-#define TURN_RIGHT_Z +2.2
+#define TURN_LEFT_Z +2.2
+#define TURN_RIGHT_Z -2.2
 #define TURN_DURATION 0.7
 
 #define STOP_DURATION 0.2
@@ -24,7 +24,7 @@ using namespace std;
 
 class Rontroller{
 private :
-	ros::Publisher path_pub;       // = nh.advertise<niklasjang_path_planning::MsgTutorial>("/path1/cmd_vel", 1000);
+	ros::Publisher path_pub[7];       // = nh.advertise<niklasjang_path_planning::MsgTutorial>("/path1/cmd_vel", 1000);
 	geometry_msgs::Twist twist;
 	ros::NodeHandle nh;            // ROS 시스템과 통신을 위한 노드 핸들 선언
 	Roomba roomba;
@@ -35,13 +35,12 @@ public:
 	~Rontroller();
 	void initialize(void);
 	void setTwist(double _x, double _z);
-	void rollRoll(double spen);
-	void goStraight(void);
-	void turnLeft(void);
-	void turnRight(void);
-	void stop(void);
-	int checkOrientation(int);
-	void setPathPub(string);
+	void rollRoll(ros::Publisher path_pub, double spen);
+	void goStraight(ros::Publisher path_pub);
+	void turnLeft(ros::Publisher path_pub);
+	void turnRight(ros::Publisher path_pub);
+	void stop(ros::Publisher path_pub);
+	//void setPathPub(string);
 	PddlResultConverter getConverter(void);
 	void run(void);
 	void reset(void);

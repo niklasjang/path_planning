@@ -20,9 +20,9 @@ class Roomba{
 private:
 	vector< pair<double, double> > curr; //current position
 	vector< pair<double, double> > dest; //destination position
-	vector< double > yaw;                //current yaw
 	ros::Subscriber roomba_state_subscriber;
 	ros::NodeHandle state_nh;
+	int orientations[HOW_MANY_ROOMBAS+1];
 	int running_index;					 //represent which roomba is running for this time quantom.
 public:
 	Roomba(void);
@@ -32,21 +32,14 @@ public:
 	void setCurrY(int index, double x);
 	void setDestX(int index, double x);
 	void setDestY(int index, double x);
-	void setYaw(int index, double x);
 	double getCurrX(int index);
 	double getCurrY(int index);
 	double getDestX(int index);
 	double getDestY(int index);
-	double getYaw(int index);
 	//void simStateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
-	//void realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
-	void R1StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
-	/*void R2StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
-	void R3StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
-	void R4StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
-	void R5StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
-	void R6StateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);*/
+	void realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
 	int checkOrientation(int haveToMoveIndex);
+	void updateOrientation(int index, int value);
 };
 
 #endif
