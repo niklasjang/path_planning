@@ -1,4 +1,5 @@
 #include "niklasjang_path_planning/pddl_result_converter.h"
+
 PddlResultConverter::PddlResultConverter(){
 	ROS_INFO("PddlResultConverter constructor");
 	pddl_subscriber = nh.subscribe("/result", 1000, &PddlResultConverter::pddlResultCallback, this);
@@ -89,7 +90,6 @@ vector <pair<string, pair<string, string> > >  PddlResultConverter::getChunkComp
 }
 
 void PddlResultConverter::reset(){
-	ROS_INFO("");
 	chunk_list.clear();          //instruction string vector
 	chunk_components.clear(); // <roomba_number, x_pos, y_pos>, This is not used
 	next_move.clear();
