@@ -12,7 +12,7 @@ using namespace std;
 
 
 #define GO_STRAIGHT_X 0.3
-#define GO_DURATION 1.2
+#define GO_DURATION 2.0
 
 #define TURN_LEFT_Z +2.2
 #define TURN_RIGHT_Z -2.2

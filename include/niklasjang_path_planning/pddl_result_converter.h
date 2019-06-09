@@ -29,7 +29,8 @@ public:
 	void chunkPddlResult(string, int);
 	void splitByWhiteSpace(string, int);
 	void splitByDelimiter(string&, int);
-	void reset(void);
+	void resetAll(void);
+	void reset(int index);
 	~PddlResultConverter();
 
 	vector <pair<string, string> > getNextMove(int index);

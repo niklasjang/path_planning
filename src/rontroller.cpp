@@ -210,8 +210,10 @@ void Rontroller::run(vector <pair<string, string> > data, int idx){
 		}
 	}
 
-	if(idx == 1) ROS_INFO("***R1 CONTROL DONE *** ");
-	else if(idx == 2) ROS_INFO("***R2 CONTROL DONE *** ");
+	if(idx == 1){
+		ROS_INFO("***R1 CONTROL DONE *** ");
+		
+	}else if(idx == 2) ROS_INFO("***R2 CONTROL DONE *** ");
 	else if(idx == 3) ROS_INFO("***R3 CONTROL DONE *** ");
 	else if(idx == 4) ROS_INFO("***R4 CONTROL DONE *** ");
 	else ROS_INFO("***CONTROL DONE Invalied index *** ");

@@ -75,11 +75,16 @@ void PddlResultConverter::splitByDelimiter(string& str, int idx) {
 /*
 reset
 */
-void PddlResultConverter::reset(){
+void PddlResultConverter::resetAll(){
 	for(int i=0; i<HOW_MANY_ROOMBAS+1; i++){
 		chunk_list[i].clear();          //instruction string vector
 		next_move[i].clear();
 	}
+}
+
+void PddlResultConverter::reset(int index){
+	chunk_list[index].clear();          //instruction string vector
+	next_move[index].clear();
 }
 
 
@@ -91,7 +96,8 @@ void PddlResultConverter::r1pddlResultCallback(const std_msgs::StringConstPtr& p
 	ROS_INFO("R1 CATCH PDDL RESULT ");
 	ROS_INFO("Subscribe data : %s", pddl_result->data.c_str());
 	chunkPddlResult(pddl_result->data, 1);
-	if(getRunCheck()) run(next_move[1], 1);
+	run(next_move[1], 1);
+	next_move[1].clear();
 }
 
 /*
@@ -102,7 +108,8 @@ void PddlResultConverter::r2pddlResultCallback(const std_msgs::StringConstPtr& p
 	ROS_INFO("R2 CATCH PDDL RESULT ");
 	ROS_INFO("Subscribe data : %s", pddl_result->data.c_str());
 	chunkPddlResult(pddl_result->data, 2);
-	if(getRunCheck()) run(next_move[2], 2);
+	run(next_move[2], 2);
+	next_move[2].clear();
 }
 
 /*
@@ -113,7 +120,8 @@ void PddlResultConverter::r3pddlResultCallback(const std_msgs::StringConstPtr& p
 	ROS_INFO("R3 CATCH PDDL RESULT ");
 	ROS_INFO("Subscribe data : %s", pddl_result->data.c_str());
 	chunkPddlResult(pddl_result->data, 3);
-	if(getRunCheck()) run(next_move[3], 3);
+	run(next_move[3], 3);
+	next_move[3].clear();
 }
 
 /*
@@ -124,7 +132,8 @@ void PddlResultConverter::r4pddlResultCallback(const std_msgs::StringConstPtr& p
 	ROS_INFO("R4 CATCH PDDL RESULT ");
 	ROS_INFO("Subscribe data : %s", pddl_result->data.c_str());
 	chunkPddlResult(pddl_result->data, 4);
-	if(getRunCheck()) run(next_move[4], 4);
+	run(next_move[4], 4);
+	next_move[4].clear();
 }
 
 
