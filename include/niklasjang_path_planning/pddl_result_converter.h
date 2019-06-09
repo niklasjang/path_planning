@@ -18,32 +18,23 @@ pddl_subscriber : to get PDDL_result from server
 
 class PddlResultConverter{
 private:
-	ros::Subscriber pddl_subscriber[HOW_MANY_ROOMBAS+1];
+	ros::Subscriber pddl_subscriber[2];
+	ros::Publisher pddl_publisher;
 	ros::NodeHandle nh;    
-	vector <string> chunk_list[HOW_MANY_ROOMBAS+1];          //instruction string vector
-	vector <pair<string, string> > next_move[HOW_MANY_ROOMBAS+1];
+	vector <string> chunk_list;          //instruction string vector
+	vector <pair<string, string> > next_move;
 	Rontroller rontroller;
-	bool run_check;
 public:
 	PddlResultConverter();
-	void chunkPddlResult(string, int);
-	void splitByWhiteSpace(string, int);
-	void splitByDelimiter(string&, int);
-	void resetAll(void);
-	void reset(int index);
+	void chunkPddlResult(string);
+	void splitByWhiteSpace(string);
+	void splitByDelimiter(string& );
+	void reset(void);
 	~PddlResultConverter();
-
-	vector <pair<string, string> > getNextMove(int index);
-	void r1pddlResultCallback(const std_msgs::StringConstPtr& _pddl_result);
-	void r2pddlResultCallback(const std_msgs::StringConstPtr& _pddl_result);
-	void r3pddlResultCallback(const std_msgs::StringConstPtr& _pddl_result);
-	void r4pddlResultCallback(const std_msgs::StringConstPtr& _pddl_result);
-	void run(vector <pair<string, string> > data, int idx);
-	void setRunCheck(void);
-	bool getRunCheck(void);
-
+	void pddlResultCallback(const std_msgs::StringConstPtr& _pddl_result);
+	void runCallback(const std_msgs::StringConstPtr& ok_result);
+	vector <pair<string, string> > getNextMove(void);
 };
-
 #endif
 
 

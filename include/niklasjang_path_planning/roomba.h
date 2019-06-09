@@ -8,9 +8,6 @@
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
 
-#define HOW_MANY_ROOMBAS 4
-
-
 using namespace std;
 
 /**
@@ -21,16 +18,15 @@ using namespace std;
 
 class Roomba{
 private:
-	vector< pair<double, double> > curr; //current position
-	vector< pair<double, double> > dest; //destination position
-	ros::Subscriber roomba_state_subscriber;
-	ros::NodeHandle state_nh;
-	int orientations[HOW_MANY_ROOMBAS];
-	int running_index;					 //represent which roomba is running for this time quantom.
+	//vector< pair<double, double> > curr; //current position
+	//vector< pair<double, double> > dest; //destination position
+	//ros::Subscriber roomba_state_subscriber;
+	//ros::NodeHandle state_nh;
+	int orientation;
 public:
 	Roomba(void);
-	~Roomba();
-	void setRunningIndex(int index);
+	~Roomba(void);
+	/*
 	void setCurrX(int index, double x);
 	void setCurrY(int index, double x);
 	void setDestX(int index, double x);
@@ -39,10 +35,11 @@ public:
 	double getCurrY(int index);
 	double getDestX(int index);
 	double getDestY(int index);
+	*/
 	//void simStateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
-	void realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
-	int checkOrientation(int index);
-	void updateOrientation(int index, int value);
+	//void realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
+	int checkOrientation(void);
+	void updateOrientation(int value);
 };
 
 #endif

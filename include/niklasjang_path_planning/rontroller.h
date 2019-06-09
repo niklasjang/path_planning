@@ -12,19 +12,19 @@ using namespace std;
 
 
 #define GO_STRAIGHT_X 0.3
-#define GO_DURATION 2.0
+#define GO_DURATION 1.4
 
-#define TURN_LEFT_Z +2.2
-#define TURN_RIGHT_Z -2.2
-#define TURN_DURATION 0.7
+#define TURN_LEFT_Z +1.3
+#define TURN_RIGHT_Z -1.3
+#define TURN_DURATION 1.0
 
-#define STOP_DURATION 0.2
-#define SLEEP_DURATION 2.0
+#define STOP_DURATION 0.5
+#define SLEEP_DURATION 0.5
 
 
 class Rontroller{
 private :
-	ros::Publisher path_pub[HOW_MANY_ROOMBAS+1];       // = nh.advertise<niklasjang_path_planning::MsgTutorial>("/path1/cmd_vel", 1000);
+	ros::Publisher path_pub;
 	geometry_msgs::Twist twist;
 	ros::NodeHandle nh;            // ROS 시스템과 통신을 위한 노드 핸들 선언
 	int nextMoveRoombaIndex;	   // 1~8
@@ -34,18 +34,12 @@ public:
 	~Rontroller();
 	void initialize(void);
 	void setTwist(double _x, double _z);
-	void rollRoll(double spen,int idx);
-	void goStraight(int idx);
-	void turnLeft(int idx);
-	void turnRight(int idx);
-	void stop(int idx);
-	void run(vector <pair<string, string> > data, int idx);
+	void rollRoll(double spen);
+	void goStraight(void);
+	void turnLeft(void);
+	void turnRight(void);
+	void stop(void);
+	void run(vector <pair<string, string> > &next_move);
 };
 
-
-/*
-run execute vector operations. run method get vector as param
-converter publish eah
-
-*/
 #endif

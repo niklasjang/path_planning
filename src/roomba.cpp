@@ -5,16 +5,16 @@
 */
 Roomba::Roomba(void){
 	ROS_INFO("Roomba constructor");
-	running_index = -1;
 	//roomba_state_subscriber = state_nh.subscribe("/gazebo/model_states", 1000, &Roomba::simStateCallback, this);
-	roomba_state_subscriber = state_nh.subscribe("/tf", 1000, &Roomba::realStateCallback, this);
+	//roomba_state_subscriber = state_nh.subscribe("/tf", 1000, &Roomba::realStateCallback, this);
 	
 	//Set 6 roomba's initial positions as (0.0, 0.0)
-	for(int i=0; i<=HOW_MANY_ROOMBAS; i++){                    
+	/*for(int i=0; i<=HOW_MANY_ROOMBAS; i++){                    
 		curr.push_back(make_pair(0.0,0.0));
 		dest.push_back(make_pair(0.0,0.0));
 		orientations[i] = 0;
-	}
+	}*/
+	orientation = 0;
 }
 
 Roomba::~Roomba(void){
@@ -22,7 +22,7 @@ Roomba::~Roomba(void){
 }
 
 
-int Roomba::checkOrientation(int index){
+int Roomba::checkOrientation(void){
 	//Check current orientation
 	/*
 	return value
@@ -33,21 +33,22 @@ int Roomba::checkOrientation(int index){
 			|
 			2	   //else : return -1;
 	*/
-	return orientations[index];
+	return orientation;
 }
 
-void Roomba::updateOrientation(int index, int value){
-	int temp = orientations[index];
+void Roomba::updateOrientation(int value){
+	int temp = orientation;
 	temp += value+4;
 	temp %= 4;
-	orientations[index] = temp;
-	ROS_INFO("orientation is %d\n", orientations[index] );
+	orientation = temp;
+	ROS_INFO("orientation is %d\n", orientation);
 }
 
 /**
 * Get current position of models from /gazebo/model_states messeges in REAL WORLD.
 * From x,y,z,w calculate yaw.
 */
+/*
 void Roomba::realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg){
 	double roll, pitch, yaw;
 	//Left wheel : msg[0].transforms.transform.rotation.x
@@ -58,6 +59,7 @@ void Roomba::realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg){
   	m.getRPY(roll, pitch, yaw);
   	//ROS_INFO("Left wheel yaw is %lf\n", yaw);
 }
+*/
 
 
 
@@ -152,10 +154,7 @@ void Roomba::simStateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
 	//ROS_INFO("stateCallback done!");
 }
 */
-
-void Roomba::setRunningIndex(int index){
-	running_index = index;
-}
+/*
 void Roomba::setCurrX(int index, double x){
 	curr[index].first= x;
 }
@@ -180,4 +179,4 @@ double Roomba::getDestX(int index){
 double Roomba::getDestY(int index){
 	return dest[index].second;
 }
-
+*/
