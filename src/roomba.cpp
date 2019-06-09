@@ -22,7 +22,7 @@ Roomba::~Roomba(void){
 }
 
 
-int Roomba::checkOrientation(int haveToMoveIndex){
+int Roomba::checkOrientation(int index){
 	//Check current orientation
 	/*
 	return value
@@ -33,7 +33,7 @@ int Roomba::checkOrientation(int haveToMoveIndex){
 			|
 			2	   //else : return -1;
 	*/
-	return orientations[haveToMoveIndex];
+	return orientations[index];
 }
 
 void Roomba::updateOrientation(int index, int value){

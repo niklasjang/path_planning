@@ -7,7 +7,10 @@
 #include <tf2_msgs/TFMessage.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
-#define HOW_MANY_ROOMBAS 6    // Upto 6
+
+#define HOW_MANY_ROOMBAS 4
+
+
 using namespace std;
 
 /**
@@ -22,7 +25,7 @@ private:
 	vector< pair<double, double> > dest; //destination position
 	ros::Subscriber roomba_state_subscriber;
 	ros::NodeHandle state_nh;
-	int orientations[HOW_MANY_ROOMBAS+1];
+	int orientations[HOW_MANY_ROOMBAS];
 	int running_index;					 //represent which roomba is running for this time quantom.
 public:
 	Roomba(void);
@@ -38,7 +41,7 @@ public:
 	double getDestY(int index);
 	//void simStateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
 	void realStateCallback(const tf2_msgs::TFMessage::ConstPtr& msg);
-	int checkOrientation(int haveToMoveIndex);
+	int checkOrientation(int index);
 	void updateOrientation(int index, int value);
 };
 

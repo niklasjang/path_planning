@@ -1,42 +1,35 @@
 #include "niklasjang_path_planning/pddl_result_converter.h"
 
+/*
+Constructor
+*/
 PddlResultConverter::PddlResultConverter(){
 	ROS_INFO("PddlResultConverter constructor");
-	pddl_subscriber = nh.subscribe("/result", 1000, &PddlResultConverter::pddlResultCallback, this);
+	pddl_subscriber = nh.subscribe("/r1_result", 1000, &PddlResultConverter::r1pddlResultCallback, this);
+	pddl_subscriber = nh.subscribe("/r2_result", 1000, &PddlResultConverter::r2pddlResultCallback, this);
+	pddl_subscriber = nh.subscribe("/r3_result", 1000, &PddlResultConverter::r3pddlResultCallback, this);
+	pddl_subscriber = nh.subscribe("/r4_result", 1000, &PddlResultConverter::r4pddlResultCallback, this);
 }
 
-void PddlResultConverter::pddlResultCallback(const std_msgs::StringConstPtr& _pddl_result)
-{	
-	ROS_INFO("CATCH PDDL RESULT ");
-	pddl_result = _pddl_result->data;
-	ROS_INFO("Subscribe data : %s", pddl_result.c_str());
-	chunkPddlResult();
-}
 
-void PddlResultConverter::chunkPddlResult(void){
+/*
+chunkPddlResult
+*/
+void PddlResultConverter::chunkPddlResult(string pddl_result,int idx){
 	//string pddl_result = "[ t7,x2,y2,move-left t6,x3,y2,move-down t3,x3,y1,move-right t7,x2,y1,move-up ]";
-	splitByWhiteSpace();
+	splitByWhiteSpace(pddl_result, idx);
 	
-	chunk_list.pop_back();  //Remove ]
+	chunk_list[idx].pop_back();  //Remove ]
 	
-	for (int i = 1; i < chunk_list.size(); i++) { 
-		//ROS_INFO("string is %s", chunk_list[i].c_str());
-		//cout << ins[i] << "\n";
-		splitByDelimiter(chunk_list[i]);
+	for (int i = 1; i < chunk_list[idx].size(); i++) { 
+		splitByDelimiter(chunk_list[idx][i], idx);
 	}
-	//ROS_INFO("next size is %d", next.size());
-	//cout << next.size() << "\n";
-	/*
-	for (int i = 0; i < next.size(); i++) {
-		ROS_INFO("result 1: %s, %s, %s",  next[i].first.c_str(),  next[i].second.first.c_str(), next[i].second.second.c_str());
-		cout << "(" << next[i].first <<"," << next[i].second.first << "," << next[i].second.second << ")\n";
-	}
-	*/
-	//cout << next[0].second.first << "\n";
 }
 
-
-void PddlResultConverter::splitByWhiteSpace(void) {
+/*
+splitByWhiteSpace
+*/
+void PddlResultConverter::splitByWhiteSpace(string pddl_result, int idx) {
 	size_t pos = 0;	
 	string white_space = " ";	
 	string token;
@@ -44,13 +37,15 @@ void PddlResultConverter::splitByWhiteSpace(void) {
 		token = pddl_result.substr(0, pos);
 		//ROS_INFO(token.c_str());
 		pddl_result.erase(0, pos + white_space.length());
-		chunk_list.push_back(token);
+		chunk_list[idx].push_back(token);
 	}
 	//ROS_INFO(token.c_str());
-	chunk_list.push_back(pddl_result);
+	chunk_list[idx].push_back(pddl_result);
 }
-
-void PddlResultConverter::splitByDelimiter(string& str) {
+/*
+splitByDelimiter
+*/
+void PddlResultConverter::splitByDelimiter(string& str, int idx) {
 	//ROS_INFO("splitNextInstruction");
 	size_t pos = 0;
 	string delim = ",";
@@ -61,41 +56,75 @@ void PddlResultConverter::splitByDelimiter(string& str) {
 		//ROS_INFO(token.c_str());
 		//ROS_INFO("index is %d", index);
 		if (index == 0) { obj = token; }
-		/*
-		if (index == 1) { x_pos = token;}
-		if (index == 2) {
-			y_pos = token;
-			//ROS_INFO("next.push_back", obj.c_str(), x_pos.c_str(), y_pos.c_str());
-			chunk_components.push_back(make_pair(obj, make_pair(x_pos, y_pos)));
-		}
-		*/
 		str.erase(0, pos + delim.length());   //erase token from str
 		if( index == 2) {
 			ROS_INFO("next_move.push_back %s, %s", obj.c_str(), str.c_str());
-			next_move.push_back(make_pair(obj,str));
+			next_move[idx].push_back(make_pair(obj,str));
 		}
 		index++;
 	}
 	
 }
 
-
-vector <pair<string, string> > PddlResultConverter::getNextMove(void){
-	return next_move;
-}
-
-
-vector <pair<string, pair<string, string> > >  PddlResultConverter::getChunkComponents(void){
-	return chunk_components;
-}
-
+/*
+reset
+*/
 void PddlResultConverter::reset(){
-	chunk_list.clear();          //instruction string vector
-	chunk_components.clear(); // <roomba_number, x_pos, y_pos>, This is not used
-	next_move.clear();
+	for(int i=0; i<Roomba::HOW_MANY_ROOMBAS+1; i++){
+		chunk_list[i].clear();          //instruction string vector
+		next_move[i].clear();
+	}
 }
 
 PddlResultConverter::~PddlResultConverter(){
 	ROS_INFO("PddlResultConverter destructor");
 }
 
+/*
+Callback : Get #Target1 PDDL_Result 
+*/
+void PddlResultConverter::r1pddlResultCallback(const std_msgs::StringConstPtr& pddl_result)
+{	
+	ROS_INFO("R1 CATCH PDDL RESULT ");
+	ROS_INFO("Subscribe data : %s", pddl_result->data.c_str());
+	chunkPddlResult(pddl_result->data, 1);
+	run(next_move[1], 1);
+}
+
+/*
+Callback : Get #Target1 PDDL_Result 
+*/
+void PddlResultConverter::r2pddlResultCallback(const std_msgs::StringConstPtr& pddl_result)
+{	
+	ROS_INFO("R1 CATCH PDDL RESULT ");
+	ROS_INFO("Subscribe data : %s", pddl_result->data.c_str());
+	chunkPddlResult(pddl_result->data, 2);
+	run(next_move[2], 2);
+}
+
+/*
+Callback : Get #Target1 PDDL_Result 
+*/
+void PddlResultConverter::r3pddlResultCallback(const std_msgs::StringConstPtr& pddl_result)
+{	
+	ROS_INFO("R1 CATCH PDDL RESULT ");
+	ROS_INFO("Subscribe data : %s", pddl_result->data.c_str());
+	chunkPddlResult(pddl_result->data, 3);
+	run(next_move[3], 3);
+}
+
+/*
+Callback : Get #Target1 PDDL_Result 
+*/
+void PddlResultConverter::r4pddlResultCallback(const std_msgs::StringConstPtr& pddl_result)
+{	
+	ROS_INFO("R1 CATCH PDDL RESULT ");
+	ROS_INFO("Subscribe data : %s", pddl_result->data.c_str());
+	chunkPddlResult(pddl_result->data, 4);
+	run(next_move[4], 4);
+}
+
+
+void PddlResultConverter::run(vector <pair<string, string> > data, int idx){
+	rontroller.run(data, idx);
+}
