@@ -183,6 +183,9 @@ void Rontroller::run(vector <pair<string, string> > &next_move){
 	ROS_INFO("***CONTROL DONE *** ");
 }
 
+
+
+
 Rontroller::Rontroller(void){
 	ROS_INFO("Rontroller constructor");
 	initialize();

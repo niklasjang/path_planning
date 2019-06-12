@@ -34,7 +34,7 @@ void PddlResultConverter::runCallback(const std_msgs::StringConstPtr& ok_result)
 	ROS_INFO("Subscribe data : %s", ok_result->data.c_str());
 	chunkPddlResult(ok_result->data);
 
-	if(ok_result->data == "OK"){
+	if(ok_result->data == "RUN"){
 		ROS_INFO("YES");
 		rontroller.run(next_move);
 	}else{

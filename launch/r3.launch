@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+	<group ns="r3">
+		<node pkg="niklasjang_path_planning" type="roomba_pddl_driver" name="roomba_pddl_driver_3">
+			<remap from="/result" to="/r3/result"/>
+			<remap from="/cmd_vel" to="/r3/cmd_vel"/>
+			<remap from="/received" to="/r3/received"/>
+		</node>
+	</group>
+
+</launch>
+

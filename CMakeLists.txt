@@ -35,6 +35,13 @@ include_directories(
 )
 
 
+## result_receive_checker 노드에 대한 빌드 옵션이다.
+add_executable(result_receive_checker 
+src/result_receive_checker.cpp)
+add_dependencies(result_receive_checker ${${PROJECT_NAME}_EXPORTED_TARGETS}
+${catkin_EXPORTED_TARGETS})
+target_link_libraries(result_receive_checker ${catkin_LIBRARIES})
+
 ## roomba_pddl_driver 노드에 대한 빌드 옵션이다.
 add_executable(roomba_pddl_driver 
 src/roomba_pddl_driver.cpp 
@@ -44,6 +51,17 @@ src/rontroller.cpp)
 add_dependencies(roomba_pddl_driver ${${PROJECT_NAME}_EXPORTED_TARGETS}
 ${catkin_EXPORTED_TARGETS})
 target_link_libraries(roomba_pddl_driver ${catkin_LIBRARIES})
+
+
+## roomba_pddl_driver_2 노드에 대한 빌드 옵션이다.
+#add_executable(roomba_pddl_driver_2 
+#src/roomba_pddl_driver.cpp 
+#src/roomba.cpp 
+#src/pddl_result_converter.cpp 
+#src/rontroller.cpp)
+#add_dependencies(roomba_pddl_driver_2 ${${PROJECT_NAME}_EXPORTED_TARGETS}
+#${catkin_EXPORTED_TARGETS})
+#target_link_libraries(roomba_pddl_driver_2 ${catkin_LIBRARIES})
 
 ####################################################
 ######## So far. Youtube ROS PYS PPT ##############

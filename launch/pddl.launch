@@ -1,4 +1,0 @@
-<launch>
-	<node pkg="niklasjang_path_planning" type="roomba_pddl_driver" name="roomba_pddl_driver" />
-</launch>
-
