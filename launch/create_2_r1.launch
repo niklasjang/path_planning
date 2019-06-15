@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+	<group ns = "r1">
+  <arg name="config" default="$(find ca_driver)/config/default.yaml" />
+  <arg name="desc" default="true" />
+
+  <node name="ca_driver" pkg="ca_driver" type="ca_driver" output="screen">
+    <rosparam command="load" file="$(arg config)" />
+    <param name="robot_model" value="CREATE_2" />
+	<remap from="cmd_vel" to ="/r1/cmd_vel"/>
+	<remap from="/tf" to ="/r1/tf" />
+  </node>
+
+  <!-- Robot description -->
+  <include if="$(arg desc)" file="$(find ca_description)/launch/create_2.launch" />
+</group>
+</launch>
