@@ -6,7 +6,7 @@ using namespace std;
 Callback : Get #Target1 PDDL_Result 
 */
 
-bool check[5];
+bool check[4];
 
 void r1ReceiveChecker(const std_msgs::StringConstPtr& received)
 {	
@@ -38,6 +38,7 @@ void r3ReceiveChecker(const std_msgs::StringConstPtr& received)
 	}
 }
 
+/*
 void r4ReceiveChecker(const std_msgs::StringConstPtr& received)
 {	
 	ROS_INFO("CATCH OK R4 RESULT ");
@@ -47,7 +48,7 @@ void r4ReceiveChecker(const std_msgs::StringConstPtr& received)
 		check[4] = true;
 	}
 }
-
+*/
 
 int main(int argc, char **argv)// 노드 메인 함수
 {
@@ -56,12 +57,12 @@ int main(int argc, char **argv)// 노드 메인 함수
 	ros::NodeHandle nh;// ROS 시스템과 통신을 위한 노드 핸들 선언
 	ros::Rate loop_rate(1);
 	ros::Publisher run_pub;
-	ros::Subscriber receive_sub[5];
+	ros::Subscriber receive_sub[4];
 
 	receive_sub[1] = nh.subscribe("/r1/received", 100, r1ReceiveChecker);
 	receive_sub[2] = nh.subscribe("/r2/received", 100, r2ReceiveChecker);
 	receive_sub[3] = nh.subscribe("/r3/received", 100, r3ReceiveChecker);
-	receive_sub[4] = nh.subscribe("/r4/received", 100, r4ReceiveChecker);
+	//receive_sub[4] = nh.subscribe("/r4/received", 100, r4ReceiveChecker);
 	run_pub = nh.advertise<std_msgs::String>("/run", 100);
 
 	bool flag = true;
@@ -69,7 +70,7 @@ int main(int argc, char **argv)// 노드 메인 함수
 	{	
 		//ROS_INFO("size %d",rontroller.GetNext().size());
 		ROS_INFO("Waiting for All Result Reived");
-		for( int i=1; i<5; i++){
+		for( int i=1; i<4; i++){
 			flag = flag && check[i];
 		}
 		if(flag){
@@ -77,7 +78,7 @@ int main(int argc, char **argv)// 노드 메인 함수
 			string s = "RUN";
 			msg.data = s;
 			run_pub.publish(msg);
-			for(int i=1; i<5; i++){
+			for(int i=1; i<4; i++){
 				check[i] = false;
 			}
 		}
