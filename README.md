@@ -1,6 +1,10 @@
 
 # gazebo Branch
 
+Demo :  
+
+<https://youtu.be/uGnAFQer308> 
+
 Gazebo Sim에서 8대의 로봇 모델을 사용해서 8 puzzle 문제를 해결하는 노드가 들어있습니다.
 
 1. cd ~/catkin_ws/src
@@ -12,6 +16,12 @@ Gazebo Sim에서 8대의 로봇 모델을 사용해서 8 puzzle 문제를 해결
 7. rostopic pub /result std_msgs/String "data: '[ t2,x1,y2,move-down t3,x2,y2,move-left ]'"
 
 # pddl branch
+
+Demo :  
+
+<https://youtu.be/i-6bfpRTpEc>  
+
+<https://youtu.be/GrBQo4zfoUY>  
 
 PDDL 서버에서 보내준 결과를 실제 룸바가 받고 해석해서 읽는 노드들이 들어있습니다.
 
@@ -74,9 +84,9 @@ PDDL 서버에서 보내준 결과를 실제 룸바가 받고 해석해서 읽�
 
 - 저장한 맵 로드하기
 
-In Terminal 1, launch the Gazebo world
-In Terminal 2, start map building
-In Terminal 3, launch rviz
+In Terminal 1, launch the Gazebo world  
+In Terminal 2, start map building  
+In Terminal 3, launch rviz  
 
 1. roslaunch mybot_gazebo mybot_world.launch
 2. roslaunch mybot_navigation amcl_demo.launch
@@ -88,7 +98,7 @@ In Terminal 3, launch rviz
 
 ## Multi machine ROS 연동
 
-아래의 명령어로 각 Machine에서 IP를 확인. 
+아래의 명령어로 각 Machine에서 IP를 확인.  
 
 ```t
 hostname -I
@@ -122,9 +132,9 @@ terminator를 설치하면 여러 개의 터미널을 한 번에 제어할 수 �
 
 ## Script file
 
-스크립트 파일을 작성해두면 킨 명령어를 쉽게 입력할 수 있습니다.
+스크립트 파일을 작성해두면 킨 명령어를 쉽게 입력할 수 있습니다.  
 
-아래의 roslaunch 명령어를 자주 사용해야한다면 아래와 같이 파일을 저장합니다.
+아래의 roslaunch 명령어를 자주 사용해야한다면 아래와 같이 파일을 저장합니다.  
 
 ```cpp
 /**
@@ -137,7 +147,7 @@ roslaunch mybot_description mybot_rviz.launch
 
 ## Auto source environmental variable
 
-catkin_make 실행하는 등 환경에 변화가 생기면 자주 아래의 명령어를 터미널에 입력해야 합니다.
+catkin_make 실행하는 등 환경에 변화가 생기면 자주 아래의 명령어를 터미널에 입력해야 합니다.  
 
 ```cpp
 source ~/catkin_ws/devel/setup.bash
@@ -154,12 +164,12 @@ gedit ~/.bashrc
 
 1. roslaunch mybot_gazebo mybot_world.launch
 2. rostopic pub /cmd_vel geometry_msgs/Twist "linear:
-  x: 0.0
-  y: 0.0
-  z: 0.0
-angular:
-  x: 0.0
-  y: 0.0
-  z: 0.0"
+  x: 0.0  
+  y: 0.0  
+  z: 0.0  
+angular:  
+  x: 0.0  
+  y: 0.0  
+  z: 0.0"  
 
 
